@@ -6,7 +6,7 @@ import { colors } from '../constants/theme';
 export function Screen({ title, subtitle = '', children }) {
   return (
     <SafeAreaView style={styles.safe} edges={['left', 'right', 'bottom']}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets contentInsetAdjustmentBehavior="automatic">
         <Text style={styles.brand}>VESTIBULAR SCREENING · ĐỒ ÁN</Text>
         <Text accessibilityRole="header" style={styles.title}>{title}</Text>
         {subtitle ? <Text style={styles.body}>{subtitle}</Text> : null}
@@ -20,8 +20,8 @@ export function Screen({ title, subtitle = '', children }) {
 export const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
   content: { padding: 22, gap: 18, flexGrow: 1 },
-  brand: { color: colors.primary, fontSize: 12, fontWeight: '700', letterSpacing: 1 },
-  title: { color: colors.text, fontSize: 28, fontWeight: '700' },
-  body: { color: colors.muted, fontSize: 15, lineHeight: 23 },
-  footer: { color: colors.muted, fontSize: 12, lineHeight: 19, marginTop: 12 },
+  brand: { color: colors.primary, fontSize: 13, fontWeight: '700', letterSpacing: 0.5 },
+  title: { color: colors.text, fontSize: 30, lineHeight: 38, fontWeight: '700' },
+  body: { color: colors.muted, fontSize: 17, lineHeight: 26 },
+  footer: { color: colors.muted, fontSize: 14, lineHeight: 22, marginTop: 12 },
 });

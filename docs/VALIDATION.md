@@ -1,5 +1,30 @@
 # Kết quả kiểm tra VestibularScreening
 
+## Giai đoạn 2 và giao diện dễ đọc ngày 04/11/2026
+
+Người dùng xác nhận bản SDK 58 của Giai đoạn 1 “đã pass” trên iPhone. Kết quả đó không thay thế kiểm thử Auth hoặc giao diện mới trong Giai đoạn 2.
+
+Đã thêm @supabase/supabase-js 2.118.0 và expo-secure-store theo phiên bản Expo chọn. Chưa có Supabase project hoặc biến môi trường thật, theo trả lời của người dùng. Không tạo tài khoản hoặc gửi email thay người dùng.
+
+| Kiểm tra | Kết quả | Bằng chứng và giới hạn |
+| --- | --- | --- |
+| `npm test` | PASS | 12 ca: chia session Unicode, ghi thất bại, manifest lỗi, xóa phiên, validation email/mật khẩu/OTP, lỗi không lộ credential và timeout ở biên 15 phút. Backend storage của test là bộ nhớ, không phải Keychain iPhone. |
+| `npx expo lint` | PASS | Exit code 0, không lỗi hoặc cảnh báo lint. |
+| `npx tsc --project jsconfig.json --noEmit` | PASS | Kiểm tra JS/JSX/JSDoc, exit code 0. |
+| `npx expo install --check` | PASS | Dependencies are up to date. |
+| `npx expo-doctor@latest` | PASS | 20/20 checks passed. |
+| `npx expo export --platform ios` | PASS | Bundle iOS có Supabase và SecureStore, 1225 modules, 23 assets, Hermes khoảng 3.2 MB. |
+| Tương phản màu bằng công thức độ chói sRGB | Đã đo | Nội dung/nền trắng 8.64:1, tiêu đề/nền trang 13.51:1, chữ trắng/nút 9.11:1, placeholder/nền trắng 5.93:1, lỗi/nền báo lỗi 7.41:1. Không tương đương nghiệm thu toàn bộ accessibility hoặc bố cục thiết bị. |
+| `.env` và `.env.example` | Đã kiểm tra | `.env` bị git ignore, `.env.example` không bị ignore. File mẫu chỉ có placeholder public. |
+| Email/signup/login/reset thực tế | Chưa kiểm thử | Cần tạo Supabase project, bật Confirm email, điền env, cấu hình email OTP và kiểm thử bằng email thật. |
+| Session lưu bền/timeout trên thiết bị | Chưa kiểm thử | Cần iPhone; unit test không xác minh SecureStore hoặc hành vi vòng đời iOS. |
+| Giao diện iPhone mới | Chưa xác nhận | Cần kiểm tra cỡ chữ, bàn phím, nút, cuộn, Dynamic Type và màu sau reload. |
+| npm audit | Còn tồn tại | Lần cài dependency báo 18 moderate vulnerabilities; không chạy audit fix --force. |
+
+Triển khai Auth gồm protected routes cho tài khoản đã xác nhận, màn hình xem trước không đăng nhập, input validation, ẩn/hiện mật khẩu, xác nhận email bằng mã, khôi phục bằng mã rồi updateUser, chỉnh sửa metadata hồ sơ, logout và timeout. Không lưu mật khẩu trên thiết bị. Phiên recovery không được dùng để mở main tabs, kể cả sau mở lại app. Những hành vi này cần checklist thiết bị trong [hướng dẫn Supabase](SUPABASE-SETUP.md) để nghiệm thu thực tế.
+
+Thông báo Node MODULE_TYPELESS_PACKAGE_JSON chỉ xuất hiện khi chạy các unit test ESM trực tiếp trong repo chưa đặt type=module; không đổi chế độ module toàn dự án vì ESLint đang dùng CommonJS. CLI export có cảnh báo NO_COLOR/FORCE_COLOR của môi trường. Không lấy các kiểm tra công cụ này làm bằng chứng đăng nhập hoặc gửi email thành công.
+
 ## Nâng cấp SDK 58 ngày 04/11/2026
 
 Người dùng đã cho phép nâng SDK sau khi iPhone báo Expo Go SDK 58 không tương thích dự án SDK 57. Môi trường kiểm tra: Windows, Node 24.21.0, npm 11.19.0.

@@ -7,6 +7,6 @@ export function Card({ title, children }) {
 }
 const styles = StyleSheet.create({
   card: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: 16, padding: 18, gap: 8 },
-  title: { fontSize: 17, fontWeight: '600', color: colors.text },
-  body: { fontSize: 14, lineHeight: 22, color: colors.muted },
+  title: { fontSize: 18, lineHeight: 26, fontWeight: '700', color: colors.text },
+  body: { fontSize: 16, lineHeight: 25, color: colors.muted },
 });

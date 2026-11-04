@@ -7,6 +7,6 @@ export function RouteButton({ href, children }) {
   return <Link href={href} asChild><Pressable accessibilityRole="button" style={({ pressed }) => [styles.button, pressed && { opacity: 0.7 }]}><Text style={styles.text}>{children}</Text></Pressable></Link>;
 }
 const styles = StyleSheet.create({
-  button: { minHeight: 50, padding: 14, borderRadius: 12, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
-  text: { color: '#FFFFFF', fontSize: 16, fontWeight: '600' },
+  button: { minHeight: 54, padding: 16, borderRadius: 12, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
+  text: { color: '#FFFFFF', fontSize: 17, lineHeight: 25, fontWeight: '700', textAlign: 'center' },
 });

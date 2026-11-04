@@ -10,7 +10,7 @@ Nguồn: toàn bộ tài liệu `đề thi cuối kì (2).docx`, gồm FR-01–F
 - **Mô phỏng**: chỉ minh họa UI, stimulus hoặc dữ liệu mẫu, luôn ghi “Dữ liệu mô phỏng – Demo”; không đưa kết luận bệnh lý.
 - **Nghiên cứu/native**: yêu cầu đầy đủ cần development build, native iOS, backend bảo mật hoặc nghiên cứu và validation. Những phần khả thi được tách riêng.
 
-Tất cả FR bên dưới đang ở trạng thái **chưa triển khai đầy đủ** trong Giai đoạn 1. Màn hình khung không tính là hoàn thành chức năng.
+Các FR bên dưới là phân loại tính khả thi, không phải chứng nhận hoàn thành. Sau Giai đoạn 2 đã có mã tích hợp FR-01/02/03, phần thông tin cá nhân của FR-04 và khóa phiên FR-06; còn chờ project Supabase và nghiệm thu luồng email, phiên và timeout trên iPhone. Các module bệnh nhân/test/report chưa được triển khai đầy đủ. Màn hình khung không tính là hoàn thành chức năng.
 
 | FR | Chức năng gốc | Phân loại | Phạm vi và điều kiện |
 | --- | --- | --- | --- |
