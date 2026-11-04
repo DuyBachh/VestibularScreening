@@ -6,6 +6,7 @@
     "noEmit": true,
     "module": "preserve",
     "moduleResolution": "bundler",
+    "customConditions": ["react-native"],
     "target": "es2022",
     "skipLibCheck": true,
     "esModuleInterop": true

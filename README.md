@@ -1,6 +1,6 @@
 # VestibularScreening
 
-Đồ án React Native bằng JavaScript, Expo SDK 57 và Expo Router. Nguyên mẫu học tập, không phải thiết bị chẩn đoán. Chỉ dùng dữ liệu bệnh nhân giả lập.
+Đồ án React Native bằng JavaScript, Expo SDK 58 và Expo Router. Nguyên mẫu học tập, không phải thiết bị chẩn đoán. Chỉ dùng dữ liệu bệnh nhân giả lập.
 
 ## Trạng thái
 
@@ -16,7 +16,9 @@ npm ci
 npx expo start --clear
 ```
 
-Kết nối iPhone và máy tính cùng Wi-Fi, dùng Camera iPhone quét QR và mở Expo Go tương thích SDK 57. Nếu Expo Go báo không hỗ trợ SDK, ghi lại thông báo; không tự nâng SDK. Windows không chạy iOS Simulator. Chưa kiểm thử iPhone trong phiên triển khai này.
+Đã nâng từ SDK 57 lên SDK 58 theo đồng ý của người dùng để khớp Expo Go trên iPhone. Dùng Node.js 22.13+ trên nhánh 22, hoặc 24.3+ trên nhánh 24; môi trường hiện tại dùng Node 24.21.0.
+
+Trong terminal đang chạy server cũ, nhấn Ctrl+C trước khi chạy `npx expo start --clear`. Kết nối iPhone và máy tính cùng Wi-Fi, dùng Camera iPhone quét QR mới rồi mở Expo Go SDK 58. Windows không chạy iOS Simulator. Chưa xác nhận ứng dụng chạy trên iPhone sau nâng cấp; xem kết quả kiểm tra mới nhất trong `docs/VALIDATION.md`.
 
 Kiểm tra lần lượt bốn tab; từ Kiểm tra mở từng bài rồi quay lại; từ Trang chủ mở Cài đặt → Tài khoản → Đăng ký/Quên mật khẩu. Kiểm tra chữ, cuộn, nút trên màn hình nhỏ và nút Back. Không nhập mật khẩu thật vào bản khung.
 
@@ -39,7 +41,7 @@ TypeScript chỉ là công cụ kiểm tra kiểu cho JavaScript qua `allowJs`/`
 - `src/features/tests`: danh mục bài kiểm tra, không phải dữ liệu bệnh nhân.
 - `docs`: phạm vi và kết quả kiểm tra.
 
-`App.js` được giữ nguyên từ mã hiện có để bảo toàn thay đổi chưa commit; entry `index.js` hiện dùng Expo Router. Các thư mục services/database/hooks sẽ được tạo khi có chức năng tương ứng, tránh file rỗng.
+`App.js` cũ được giữ lại, chỉ bỏ prop `StatusBar.backgroundColor` không còn được React Native hỗ trợ; entry `index.js` hiện dùng Expo Router. Các thư mục services/database/hooks sẽ được tạo khi có chức năng tương ứng, tránh file rỗng.
 
 ## Dịch vụ và Git
 

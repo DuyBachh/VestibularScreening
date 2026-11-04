@@ -2,7 +2,7 @@
 
 Nguồn: toàn bộ tài liệu `đề thi cuối kì (2).docx`, gồm FR-01–FR-42 và phần Clinical Protocol & Software Specification. Ngày đối chiếu: 04/11/2026.
 
-Đây là nguyên mẫu học tập bằng JavaScript và Expo SDK 57, chạy hướng tới Expo Go trên iPhone. Đề xuất Swift, Core Data và PDFKit trong tài liệu là bối cảnh sản phẩm gốc, không thay thế yêu cầu React Native của đồ án. Không có bằng chứng kiểm chứng lâm sàng. Protocol chi tiết và ngưỡng diễn giải chưa được cung cấp.
+Đây là nguyên mẫu học tập bằng JavaScript và Expo SDK 58, chạy hướng tới Expo Go trên iPhone. SDK được nâng từ 57 lên 58 theo đồng ý của người dùng ngày 04/11/2026 vì Expo Go trên iPhone đã dùng SDK 58. Đề xuất Swift, Core Data và PDFKit trong tài liệu là bối cảnh sản phẩm gốc, không thay thế yêu cầu React Native của đồ án. Không có bằng chứng kiểm chứng lâm sàng. Protocol chi tiết và ngưỡng diễn giải chưa được cung cấp.
 
 ## Cách đọc bảng
 
@@ -59,7 +59,7 @@ Tất cả FR bên dưới đang ở trạng thái **chưa triển khai đầy �
 
 ## Các mốc triển khai
 
-1. Nền tảng: SDK 57 giữ nguyên, Router, theme, bốn tab, auth stack và chi tiết, lint, kiểm tra kiểu JS, bundle iOS.
+1. Nền tảng: SDK 58 tương thích Expo Go hiện tại, Router, theme, bốn tab, auth stack và chi tiết, lint, kiểm tra kiểu JS, bundle iOS.
 2. Supabase Auth: login/register/verification/reset/profile và quản lý session. Chỉ dùng publishable/anon key; không dùng service role.
 3. SQLite: CRUD, tìm kiếm, lưu bền và lịch sử theo bệnh nhân. Thiết kế dữ liệu theo chủ sở hữu trước khi đưa nhiều tài khoản lên cùng thiết bị.
 4. Hai stimulus: countdown 3 giây, Smooth Pursuit liên tục, Horizontal Saccades nhảy tức thời với thời gian chờ thay đổi; pause/resume/cancel/repeat. Camera độc lập, kiểm thử trên máy thật.
