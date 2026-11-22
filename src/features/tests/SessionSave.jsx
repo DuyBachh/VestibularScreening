@@ -8,11 +8,10 @@ import { useAuth } from '../auth/AuthProvider';
 import { sessionDatabase } from '../../services/sessionDatabase';
 import { colors } from '../../constants/theme';
 
-/** @param {{ draft: import('./sessionData').SessionDraft, ownerId: string, patientName: string, onSaved: () => void, onSaving: (saving: boolean) => void, embedded?: boolean }} props */
-export function SessionSave({ draft, ownerId, patientName, onSaved, onSaving, embedded = false }) {
+/** @param {{ draft: import('./sessionData').SessionDraft, ownerId: string, patientName: string, notes: string, onNotesChange: (notes: string) => void, onSaved: () => void, onSaving: (saving: boolean) => void, embedded?: boolean }} props */
+export function SessionSave({ draft, ownerId, patientName, notes, onNotesChange, onSaved, onSaving, embedded = false }) {
   useLanguage();
   const auth = useAuth();
-  const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
@@ -33,10 +32,10 @@ export function SessionSave({ draft, ownerId, patientName, onSaved, onSaving, em
     {!embedded ? <Text style={styles.body}>{patientName || t("Không gắn hồ sơ")} · {Math.round(draft.elapsedMs / 1000)} {t(" giây · ")}{draft.status === 'completed' ? t("Hoàn tất bài mô phỏng") : t("Đã hủy")}</Text> : null}
     {draft.cameraStatus === 'error' ? <Text style={styles.error}>{t("Lượt chạy có lỗi camera; lịch sử sẽ ghi rõ lỗi này.")}</Text> : null}
     {saved ? <Text style={styles.body}>{t("Mở tab Lịch sử để xem chi tiết. Chỉ lưu thông tin lượt chạy và ghi chú, không có video hoặc chỉ số mắt.")}</Text> : <>
-      <Field label={t("Ghi chú cho lượt này (không bắt buộc)")} value={notes} onChangeText={setNotes} editable={!saving} maxLength={1000} multiline textAlignVertical="top" style={{ minHeight: 90 }} placeholder={t("Ghi chú học tập, tối đa 1.000 ký tự")} onActivity={auth.recordActivity} />
+      <Field label={t("Ghi chú cho lượt này (không bắt buộc)")} value={notes} onChangeText={onNotesChange} editable={!saving} maxLength={1000} multiline textAlignVertical="top" style={{ minHeight: 90 }} placeholder={t("Ghi chú học tập, tối đa 1.000 ký tự")} onActivity={auth.recordActivity} />
       {error ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : null}
       <Button loading={saving} onPress={save}>{t("Lưu vào lịch sử")}</Button>
-      <Text style={styles.hint}>{t("Chỉ lưu khi bạn bấm Lưu vào lịch sử. Không lưu video hoặc chỉ số mắt.")}</Text>
+      <Text style={styles.hint}>{t('Bản nháp lưu tạm trên thiết bị. Chỉ thêm vào Lịch sử khi bạn bấm lưu; không lưu video hoặc chỉ số mắt.')}</Text>
     </>}
   </View>;
 }

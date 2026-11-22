@@ -97,4 +97,4 @@ Tài liệu nền cho định nghĩa và phương pháp, không phải chứng n
 
 **Backend:** phân quyền phòng khám cần server/RLS thực thi, cloud backup cần consent/cấu hình và thử khôi phục. Không dùng user_metadata tự gán role như cơ chế phân quyền. Không coi thêm một công tắc Sync là hoàn thành.
 
-**Độ bền và nền tảng:** chưa auto-save/resume mọi bước sau crash, chưa kiểm chứng iOS 16/iPhone 12 theo yêu cầu gốc, chưa chứng nhận mã hóa/tuân thủ. Nên trình bày trung thực phần làm được, kết quả kiểm thử và kế hoạch kỹ thuật, thay vì đưa số liệu mẫu thành kết quả đo thật.
+**Độ bền và nền tảng:** đã bổ sung [checkpoint/ghi chú và khôi phục bản nháp](DRAFT-RECOVERY.md). Chỉ khôi phục dữ liệu đã ghi, không tiếp tục stimulus/camera hoặc toàn bộ chuỗi sau crash. Chưa kiểm chứng iOS 16/iPhone 12 theo yêu cầu gốc, chưa chứng nhận mã hóa/tuân thủ. Nên trình bày trung thực phần làm được, kết quả kiểm thử và kế hoạch kỹ thuật, thay vì đưa số liệu mẫu thành kết quả đo thật.

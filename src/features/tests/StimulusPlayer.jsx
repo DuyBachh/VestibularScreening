@@ -25,6 +25,7 @@ import { nextSaccadeCue } from './saccadeCue';
 import { gazeCueAt } from './gazeCue';
 import { oknMotionPlan } from './oknMotion';
 import { CameraProblem, RunHeader, RunProgress, RunResult, RunStage, runScreenStyles } from './RunScreenUI';
+import { useRunDraft } from './useRunDraft';
 
 const DURATION = 30000;
 
@@ -34,6 +35,14 @@ export function StimulusPlayer({ id, demo = false, demoPatientName = '', onDemoA
   useLanguage();
   const auth = useAuth();
   const { ownerId, cameraAllowed } = runCapabilities({ demo, signedIn: auth.isSignedIn, userId: auth.session?.user.id });
+  const draftStore = useRunDraft(auth.endingSession ? null : ownerId || null);
+  const { prepare: prepareDraft, checkpoint, flush: flushDraft, discard: discardDraft, stop: stopDraft } = draftStore;
+  const [runNotes, setRunNotes] = useState('');
+  const notesRef = useRef('');
+  const [starting, setStarting] = useState(false);
+  const [draftActionError, setDraftActionError] = useState('');
+  const startLock = useRef(false);
+  const leaveLock = useRef(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [showPreparation, setShowPreparation] = useState(false);
   const [selection, setSelection] = useState(/** @type {{ownerId: string, patient: import('../../services/patientDatabase').PatientRecord | null} | null} */ (null));
@@ -153,7 +162,9 @@ export function StimulusPlayer({ id, demo = false, demoPatientName = '', onDemoA
   }, [status, onCameraError]);
 
   async function start() {
-    if (cameraBusy) return;
+    if (cameraBusy || startLock.current) return;
+    startLock.current = true; setStarting(true); setDraftActionError('');
+    try {
     if (battery && battery.ownerId !== (ownerId || '')) { setCameraError(t("Tài khoản đã thay đổi. Hãy kết thúc chuỗi và bắt đầu lại.")); return; }
     if (withCamera) {
       try {
@@ -168,7 +179,11 @@ export function StimulusPlayer({ id, demo = false, demoPatientName = '', onDemoA
         }
       } catch { setCameraError(t("Không chuẩn bị được camera hoặc chưa dọn được video tạm. Hãy mở Thử camera trước để kiểm tra.")); return; }
     }
-    setRunInfo({ id: makeSessionId(), ownerId: ownerId || '', patientId: selectedPatient?.id || null, patientName: demo ? demoPatientName : selectedPatient?.name || '', startedAt: new Date().toISOString() });
+    const run = { id: makeSessionId(), ownerId: ownerId || '', patientId: selectedPatient?.id || null, patientName: demo ? demoPatientName : selectedPatient?.name || '', startedAt: new Date().toISOString() };
+    if (ownerId) await prepareDraft({ ...run, testId: id, withCamera });
+    setRunInfo(run);
+    notesRef.current = '';
+    setRunNotes('');
     setEndedAt('');
     setRunSaved(false);
     setCameraError('');
@@ -183,6 +198,8 @@ export function StimulusPlayer({ id, demo = false, demoPatientName = '', onDemoA
     setCountdown(3);
     setCameraReady(false);
     setStatus(withCamera ? 'preparing' : 'countdown');
+    } catch { setDraftActionError(t('Không tạo được bản nháp. Chưa bắt đầu bài; hãy thử lại.')); }
+    finally { startLock.current = false; setStarting(false); }
   }
 
   function cancel() {
@@ -196,10 +213,18 @@ export function StimulusPlayer({ id, demo = false, demoPatientName = '', onDemoA
 
   /** @param {() => void} action */
   function leave(action) {
-    if (savingSession || cameraBusy) return;
+    if (savingSession || cameraBusy || leaveLock.current) return;
     if (runInfo?.ownerId && !runSaved && ['completed', 'cancelled'].includes(status)) {
-      Alert.alert(t("Lượt kiểm tra chưa lưu"), t("Bạn muốn bỏ lượt này? Ghi chú chưa lưu cũng sẽ bị bỏ."), [
-        { text: t("Ở lại để lưu"), style: 'cancel' }, { text: t("Bỏ lượt này"), style: 'destructive', onPress: action },
+      Alert.alert(t("Lượt kiểm tra chưa lưu"), t('Bỏ lượt sẽ xóa cả bản nháp và ghi chú chưa lưu. Bạn có thể ở lại để lưu vào lịch sử.'), [
+        { text: t("Ở lại để lưu"), style: 'cancel' }, { text: t("Bỏ lượt này"), style: 'destructive', onPress: () => {
+          if (leaveLock.current) return;
+          leaveLock.current = true; setSavingSession(true); setDraftActionError('');
+          void discardDraft().then(action).catch(() => setDraftActionError(t('Chưa xóa được bản nháp. Hãy thử lại.'))).finally(() => { leaveLock.current = false; setSavingSession(false); });
+        } }, { text: t('Giữ bản nháp'), onPress: () => {
+          if (leaveLock.current) return;
+          leaveLock.current = true; setSavingSession(true);
+          void flushDraft().then(() => { stopDraft(); action(); }).catch(() => {}).finally(() => { leaveLock.current = false; setSavingSession(false); });
+        } },
       ]);
     } else action();
   }
@@ -208,6 +233,20 @@ export function StimulusPlayer({ id, demo = false, demoPatientName = '', onDemoA
   const ui = runPresentation({ status, withCamera, cameraBusy, cameraError, foreground });
   const name = testCatalog.find((test) => test.id === id)?.name || t("Bài kiểm tra");
   const elapsedMs = status === 'completed' ? 30000 : (30 - remaining) * 1000;
+  const checkpointRun = useCallback((/** @type {string} */ notes) => {
+    if (!runInfo?.ownerId || runSaved || status === 'ready') return;
+    checkpoint({ elapsedMs: status === 'completed' ? 30000 : Math.min(30000, Math.floor(elapsed.current)),
+      status: ui.showResult ? status : 'active', endedAt: ui.showResult ? endedAt : '', notes,
+      cameraStatus: !withCamera ? 'not_used' : cameraError ? 'error' : ui.showResult ? deletedSegments > 0 ? 'deleted' : 'not_used' : 'pending', deletedSegments });
+  }, [runInfo, runSaved, status, endedAt, withCamera, cameraError, deletedSegments, ui.showResult, checkpoint]);
+  useEffect(() => { checkpointRun(notesRef.current); }, [checkpointRun, remaining]);
+  function changeRunNotes(/** @type {string} */ value) {
+    notesRef.current = value; setRunNotes(value); checkpointRun(value);
+  }
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (value) => { if (value !== 'active') void flushDraft().catch(() => {}); });
+    return () => subscription.remove();
+  }, [flushDraft]);
   function backToSetup() { setCameraReady(false); setStatus('ready'); }
   /** @param {boolean} end */
   function finishInBattery(end) {
@@ -250,7 +289,7 @@ export function StimulusPlayer({ id, demo = false, demoPatientName = '', onDemoA
         <Switch accessibilityLabel={t("Quay camera trong bài")} value={withCamera} onValueChange={setWithCamera} />
       </View> : null}
       {cameraError ? <Text accessibilityRole="alert" style={styles.error}>{cameraError}</Text> : null}
-      <Button disabled={cameraBusy} onPress={start}>{t("Bắt đầu bài kiểm tra →")}</Button>
+      <Button loading={starting} disabled={cameraBusy} onPress={() => { void start(); }}>{t("Bắt đầu bài kiểm tra →")}</Button>
       {cameraAllowed ? <Button secondary onPress={() => setCameraOpen(true)}>{t("Thử camera trước")}</Button> : null}
     </View> : <View style={styles.setup}>
       <View style={styles.facts}><Text style={styles.factPill}>{t("3 giây chuẩn bị")}</Text><Text style={styles.factPill}>{t("30 giây thực hiện")}</Text></View>
@@ -267,9 +306,10 @@ export function StimulusPlayer({ id, demo = false, demoPatientName = '', onDemoA
       </View> : null}
       <Text style={styles.cameraHint}>{t("Giữ điện thoại ổn định và đầu cố định. Có thể tạm dừng bất kỳ lúc nào; dừng nếu thấy khó chịu.")}</Text>
       {cameraError ? <Text accessibilityRole="alert" style={styles.error}>{cameraError}</Text> : null}
-      <Button disabled={cameraBusy} onPress={start}>{t("Bắt đầu bài kiểm tra")}</Button>
+      <Button loading={starting} disabled={cameraBusy} onPress={() => { void start(); }}>{t("Bắt đầu bài kiểm tra")}</Button>
       <Text style={styles.setupFootnote}>{t("Mô phỏng học tập · Chưa đo chỉ số mắt.")}</Text>
     </View>}
+    {draftActionError ? <Text accessibilityRole="alert" style={styles.error}>{draftActionError}</Text> : null}
     {pickerOpen && ownerId ? <PatientPicker key={ownerId} ownerId={ownerId} onClose={() => setPickerOpen(false)} onSelect={(patient) => { setSelection({ ownerId, patient }); setPickerOpen(false); }} /> : null}
     {cameraOpen ? <CameraTrial onClose={() => setCameraOpen(false)} /> : null}
     <Modal visible={status !== 'ready'} presentationStyle="fullScreen" animationType="none" onRequestClose={() => {
@@ -288,7 +328,7 @@ export function StimulusPlayer({ id, demo = false, demoPatientName = '', onDemoA
             {demo && runInfo ? <DemoSessionNote key={runInfo.id} onAdd={onDemoAdd}
               session={{ id: runInfo.id, patientName: demoPatientName, testId: id, status, elapsedMs, notes: '' }} /> : null}
             {runInfo?.ownerId ? <SessionSave key={runInfo.id} embedded ownerId={runInfo.ownerId} patientName={runInfo.patientName}
-              onSaved={() => setRunSaved(true)} onSaving={setSavingSession}
+              notes={runNotes} onNotesChange={changeRunNotes} onSaved={() => { stopDraft(); setRunSaved(true); }} onSaving={setSavingSession}
               draft={{ id: runInfo.id, patientId: runInfo.patientId, testId: id, startedAt: runInfo.startedAt, endedAt,
                 elapsedMs, status, cameraStatus: !withCamera ? 'not_used' : cameraError ? 'error' : deletedSegments > 0 ? 'deleted' : 'not_used', deletedSegments }} />
               : !demo ? <Text style={runScreenStyles.small}>{t("Chế độ xem trước không lưu lịch sử. Đăng nhập để lưu lượt kiểm tra.")}</Text> : null}
@@ -308,6 +348,8 @@ export function StimulusPlayer({ id, demo = false, demoPatientName = '', onDemoA
               <View style={runScreenStyles.control}><Button secondary disabled={!ui.canEnd} onPress={cancel}>{t("Kết thúc")}</Button></View>
             </View>}
           </>}
+          {draftActionError ? <Text accessibilityRole="alert" style={styles.error}>{draftActionError}</Text> : null}
+          {runInfo?.ownerId && !runSaved && draftStore.state !== 'idle' ? <View><Text accessibilityLiveRegion={ui.showResult ? 'polite' : 'none'} style={draftStore.state === 'error' ? styles.error : styles.hint}>{draftStore.state === 'error' ? t('Chưa lưu được bản nháp mới nhất. Đừng đóng ứng dụng; hãy thử lại hoặc lưu vào lịch sử.') : draftStore.state === 'saving' ? t('Đang lưu bản nháp…') : t('Đã lưu bản nháp trên thiết bị')}</Text>{draftStore.state === 'error' ? <Button secondary onPress={() => { void flushDraft().catch(() => {}); }}>{t('Thử lưu bản nháp lại')}</Button> : null}</View> : null}
           <Text style={runScreenStyles.footer}>{demo ? t("Dữ liệu mô phỏng · Demo không lưu vào tài khoản.") : t("Nguyên mẫu học tập · Không dùng để chẩn đoán.")}</Text>
         </ScrollView>
       </SafeAreaView></SafeAreaProvider>

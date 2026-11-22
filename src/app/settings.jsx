@@ -40,6 +40,7 @@ export default function SettingsScreen() {
       </SettingsGroup>
       <View style={styles.dataSection}>
         <SettingsGroup title={t("Dữ liệu trên thiết bị")}>
+          {user ? <SettingsRow title={t('Bản nháp chưa lưu')} subtitle={t('Khôi phục kết quả và ghi chú chưa lưu')} onPress={() => router.push('/drafts')} /> : null}
           {user ? <SettingsRow title={t('Nhật ký hoạt động')} subtitle={t('Xem thao tác hồ sơ, lượt kiểm tra và báo cáo')} onPress={() => router.push('/activity')} /> : null}
           {user ? <SettingsRow title={t("Thùng rác")} subtitle={t("Khôi phục hồ sơ trong 30 ngày")} onPress={() => router.push('/patients/trash')} /> : null}
           <View>

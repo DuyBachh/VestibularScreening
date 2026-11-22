@@ -4,6 +4,7 @@ import { SESSION_SCHEMA } from '../features/tests/sessionData';
 import { BRANDING_SCHEMA } from '../features/auth/reportBranding';
 import { createPatientTrashRepository, PATIENT_TRASH_MIGRATION } from './patientTrashRepository';
 import { ACTIVITY_SCHEMA } from './activityRepository';
+import { PENDING_RUN_SCHEMA } from './pendingRunRepository';
 export const patientTrash = createPatientTrashRepository(getDatabase);
 
 const DATABASE_NAME = 'vestibular-screening.db';
@@ -68,6 +69,11 @@ export async function getDatabase() {
       if ((version?.user_version ?? 0) < 6) {
         await database.withTransactionAsync(async () => {
           await database.execAsync(`${ACTIVITY_SCHEMA} PRAGMA user_version = 6;`);
+        });
+      }
+      if ((version?.user_version ?? 0) < 7) {
+        await database.withTransactionAsync(async () => {
+          await database.execAsync(`${PENDING_RUN_SCHEMA} PRAGMA user_version = 7;`);
         });
       }
       return database;

@@ -8,6 +8,7 @@ import { useAuth } from '../../features/auth/AuthProvider';
 import { supportedTests } from '../../features/tests/catalog';
 import { testPresentation } from '../../features/tests/testPresentation';
 import { SettingsGroup, SettingsRow } from '../../features/settings/SettingsUI';
+import { DraftNotice } from '../../features/tests/PendingRunsScreen';
 
 export default function HomeScreen() {
   useLanguage();
@@ -51,6 +52,7 @@ export default function HomeScreen() {
         <Text style={styles.subtitle}>{t("Sàng lọc tiền đình · không gian thực hành")}</Text>
       </View>
 
+      {auth.isSignedIn && user?.id ? <DraftNotice key={user.id} ownerId={user.id} /> : null}
       <View style={styles.hero}>
         <Text style={styles.heroKicker}>{t("BẮT ĐẦU TẠI ĐÂY")}</Text>
         <Text style={styles.heroTitle}>{t("Chọn bài kiểm tra")}</Text>

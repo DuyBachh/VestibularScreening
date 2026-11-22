@@ -52,6 +52,7 @@ function AppNavigator() {
         <Stack.Screen name="sessions/[id]" options={{ title: t("Chi tiết lượt kiểm tra") }} />
         <Stack.Screen name="compare" options={{ title: t("So sánh lượt kiểm tra") }} />
         <Stack.Screen name="activity" options={{ title: t('Nhật ký hoạt động') }} />
+        <Stack.Screen name="drafts" options={{ title: t('Bản nháp chưa lưu') }} />
       </Stack.Protected>
       </Stack>
     </View>

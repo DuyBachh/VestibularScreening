@@ -1,5 +1,15 @@
 # Kết quả kiểm tra VestibularScreening
 
+## Lưu tạm và khôi phục bản nháp · 22/11/2026
+
+Người dùng báo PASS phần Gaze năm vị trí và phân tích dữ liệu mắt của mốc trước, sau đó duyệt lưu tạm/khôi phục. Đã thêm schema v7 pending_runs, tạo trước khi bắt đầu cho tài khoản đăng nhập, checkpoint khoảng mỗi giây/trạng thái thay đổi và ghi chú được xếp ghi từ sự kiện nhập. Demo/xem trước không mở luồng ghi nháp. Writer tuần tự/gộp pending, revision tăng, retry; chỉ báo saved sau khi SQLite ghi xong. Update không upsert, không lùi tiến độ/trạng thái; tài khoản thay đổi trong begin/recover làm rollback. Không lưu video/URI/token/tên bệnh nhân trong bảng nháp.
+
+Trang chủ báo có nháp, Cài đặt/Hướng dẫn có lối vào /drafts được bảo vệ theo tài khoản và remount theo owner. Khôi phục đọc lại owner/hồ sơ, completed/cancelled cho lưu lịch sử trong transaction và xóa nháp cùng phiên; active hiển thị Gián đoạn, không nâng thành completed kể cả elapsed đạt 30.000 ms. Không khôi phục stimulus/camera/chuỗi. Khi rời kết quả có Giữ bản nháp hoặc bỏ và xóa; xóa nháp có xác nhận. Trigger xóa nháp khi lưu phiên bình thường; retry không tạo bản trùng, tác vụ ghi chậm không tái tạo hàng đã xóa. Lỗi thao tác bản nháp hiển thị riêng, không đổi nhầm camera_status thành lỗi camera.
+
+Xóa local đếm và xóa thêm bản nháp cùng transaction, kể cả nháp không gắn hồ sơ/nháp của hồ sơ trash. Logout thường giữ; owner khác không ảnh hưởng. Soft delete hồ sơ ẩn nháp và chặn ghi/lưu, restore hiển thị lại, hard delete cascade trên connection có foreign_keys. Đã cập nhật fixture kiểm thử cả transaction connection không kế thừa foreign_keys.
+
+Kiểm tra cuối: npm test 143/143 PASS (13 ca mới về owner, revision, save/cleanup và late writes, không nâng active, camera error/cancelled, rollback/đổi owner, trash/cascade, đóng/mở DB/migration, writer coalescing/ack/retry). Bộ clear account mở rộng thêm drafts/failure/rollback. Expo lint, tsc --project jsconfig.json --noEmit và iOS export PASS: 1.389 modules, bundle 4 MB. Chưa nghiệm thu migration/kill Expo Go/Modal/camera/UI trên iPhone cho đợt này; checklist 1–7 ở DRAFT-RECOVERY.md. Giới hạn chỉ giữ mốc đã ghi, không bảo đảm ký tự chưa ghi xong hoặc byte erasure/mã hóa.
+
 ## Phân tích dữ liệu mắt và Gaze năm vị trí · 22/11/2026
 
 Đọc cả hai phần đặc tả trong đề thi cuối kì (1).docx, ghi bảng đối chiếu 42 FR ở REQUIREMENTS-REVIEW.md. Sửa Gaze-Evoked từ chỉ ngang thành giữa/trái/phải/trên/dưới; run 30 giây và preview 8 giây vẫn theo thời gian active, dùng cùng hai mảng tọa độ và vùng dọc có inset tránh caption. Không đổi camera controller, session schema hoặc battery flow.

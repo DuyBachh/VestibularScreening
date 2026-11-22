@@ -32,7 +32,7 @@ export function LocalDataRemoval({ ownerId }) {
       const data = await accountData.summary(ownerId);
       if (!isCurrent()) return;
       Alert.alert(t("Xóa dữ liệu và đăng xuất?"),
-        t("Tài khoản: {0}\n\nSẽ xóa vĩnh viễn trên thiết bị này:\n• {1} hồ sơ đang dùng\n• {2} hồ sơ trong thùng rác\n• {3} lượt chạy và ghi chú\n• {4}\n\nKhông thể khôi phục. Tài khoản Supabase, thông tin cá nhân và PDF đã lưu trong Tệp vẫn được giữ. Dữ liệu tài khoản khác không bị xóa.", [auth.session?.user.email || '', data.patients, data.trashed, data.sessions, data.logos ? t("Logo cơ sở đã lưu") : t("Không có logo cơ sở")]) + '\n\n' + t('Nhật ký hoạt động của tài khoản cũng sẽ bị xóa.'), [
+        t("Tài khoản: {0}\n\nSẽ xóa vĩnh viễn trên thiết bị này:\n• {1} hồ sơ đang dùng\n• {2} hồ sơ trong thùng rác\n• {3} lượt chạy và ghi chú\n• {4}\n\nKhông thể khôi phục. Tài khoản Supabase, thông tin cá nhân và PDF đã lưu trong Tệp vẫn được giữ. Dữ liệu tài khoản khác không bị xóa.", [auth.session?.user.email || '', data.patients, data.trashed, data.sessions, data.logos ? t("Logo cơ sở đã lưu") : t("Không có logo cơ sở")]) + '\n\n' + t('Nhật ký hoạt động của tài khoản cũng sẽ bị xóa.') + '\n' + t('Sẽ xóa thêm {0} bản nháp chưa lưu.', [data.drafts]), [
           { text: t("Giữ lại"), style: 'cancel' },
           { text: t("Xóa và đăng xuất"), style: 'destructive', onPress: () => { void remove(); } },
         ]);
