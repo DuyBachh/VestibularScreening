@@ -36,6 +36,7 @@ export default function SettingsScreen() {
         <SettingsRow title={t("Hướng dẫn sử dụng")} subtitle={t("Từ chuẩn bị bài đến xuất báo cáo")} onPress={() => router.push('/guide')} />
         <SettingsRow title={t("Báo lỗi và góp ý")} subtitle={t("Soạn phản hồi, xem lại rồi chia sẻ")} onPress={() => router.push('/feedback')} />
         <SettingsRow title={t("Thử demo")} subtitle={t("Hồ sơ mẫu · Không lưu vào tài khoản")} onPress={() => router.push('/demo')} />
+        <SettingsRow title={t('Phân tích dữ liệu mắt')} subtitle={t('Dữ liệu mẫu hoặc CSV · Biểu đồ và chỉ số')} onPress={() => router.push('/analysis')} />
       </SettingsGroup>
       <View style={styles.dataSection}>
         <SettingsGroup title={t("Dữ liệu trên thiết bị")}>

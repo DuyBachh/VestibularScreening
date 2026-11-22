@@ -36,10 +36,10 @@ Các FR bên dưới là phân loại tính khả thi, không phải chứng nh�
 | 20 | Lặp lại theo chất lượng | Mô phỏng | Làm thật nút lặp lại; chưa có quality score để quyết định tự động. |
 | 21 | Chất lượng tracking trực tiếp | Nghiên cứu/native | Không tạo đèn xanh hoặc điểm chất lượng giả; UI minh họa phải có nhãn demo. |
 | 22 | NPC break/recovery/distance | Nghiên cứu/native | Để tương lai; cần theo dõi, mô hình khoảng cách và kiểm chứng. |
-| 23 | Tính metrics mắt | Nghiên cứu/native | Gain, latency, SPV, velocity… cần trace mắt và thuật toán đã xác minh; chỉ biểu đồ mẫu có nhãn nếu cần. |
+| 23 | Tính metrics mắt | Nghiên cứu/native | Đã bổ sung bộ phân tích CSV góc có hiệu chỉnh bên ngoài: RMS/gain vận tốc, latency/peak/displacement gain saccade. Chưa lấy trace từ camera, chưa SPV/NPC/OKN asymmetry hoặc xác minh lâm sàng. |
 | 24 | So sánh normative data | Nghiên cứu/native | Chưa có bộ dữ liệu tham chiếu/ngưỡng được kiểm chứng; không phân loại bình thường hoặc bất thường. |
-| 25 | Báo cáo sau bài | Mô phỏng | Lưu thật tên bài, bệnh nhân, thời gian, trạng thái, ghi chú; không có trace mắt hay interpretation thật. |
-| 26 | PDF | Thật | expo-print và expo-sharing; ghi rõ dữ liệu thực tế có sẵn, không bịa chỉ số. |
+| 25 | Báo cáo sau bài | Mô phỏng | Phiên lưu tên bài, bệnh nhân, thời gian, trạng thái, ghi chú; chưa trace camera. Màn phân tích riêng có đồ thị và chỉ số từ CSV, không tự gắn vào phiên bệnh nhân hay diễn giải bệnh lý. |
+| 26 | PDF | Thật | expo-print và expo-sharing; PDF phiên giữ metadata/logo/ghi chú, PDF phân tích riêng có đồ thị/chỉ số tính từ CSV và nhãn nguồn. Chưa PDF đo mắt tự động sau bài camera. |
 | 27 | So sánh nhiều lần | Mô phỏng | Đã so sánh metadata của 2 phiên cùng bệnh nhân/cùng bài: thời điểm, trạng thái, thời gian thực hiện, camera, ghi chú. Không so sánh phiên không gắn hồ sơ hoặc kết luận tiến triển lâm sàng. Chưa nghiệm thu trên iPhone. |
 | 28 | Ghi chú phiên | Thật | Lưu ghi chú với phiên trước khi hoàn tất. |
 | 29 | Chia sẻ báo cáo | Thật | Share sheet iOS; đích email/AirDrop/Files tùy thiết bị. |
@@ -58,6 +58,8 @@ Các FR bên dưới là phân loại tính khả thi, không phải chứng nh�
 | 42 | Core offline | Thật | Stimulus, SQLite và PDF local; đăng ký/reset cần mạng, tracking lâm sàng chưa có. |
 
 ## Các mốc triển khai
+
+Đối chiếu lại `đề thi cuối kì (1).docx` (22/11/2026): xem [bảng trạng thái 42 FR và kiểm thử mới](REQUIREMENTS-REVIEW.md). Gaze-Evoked được sửa thành giữa/trái/phải/trên/dưới theo phần protocol tiếng Anh; mỗi vị trí vẫn 6 giây mô phỏng. Thêm màn Phân tích dữ liệu mắt từ Cài đặt/Hướng dẫn, nhận mẫu tổng hợp hoặc CSV góc đã hiệu chỉnh bên ngoài, tính RMS/gain vận tốc và latency/peak velocity/displacement gain saccade kèm kiểm tra dữ liệu, đồ thị và PDF riêng. Đây là phần tính toán thật từ dữ liệu nhập cho FR-23/25/26, chưa nối camera, calibration, normative data hoặc lịch sử bệnh nhân. Dữ liệu trong bộ nhớ, nhãn nguồn rõ, không gọi quality gate là tracking score. Chưa nghiệm thu UI/PDF và Gaze mới trên iPhone.
 
 Nhật ký hoạt động (18/11/2026): người dùng duyệt mục Cài đặt, thao tác hồ sơ/lưu phiên/PDF, chia ngày/lọc loại và Việt/Anh. Schema v6 thêm activity_events và trigger cùng statement cho create/update/trash/restore/delete bệnh nhân, save/update notes phiên. Không backfill quá khứ hoặc JOIN tên khi đọc; target_id là ID nội bộ, event/category cố định, thời điểm ISO. PDF append bằng SELECT EXISTS ràng buộc owner/phiên active; log phân biệt requested preview/print, verified file creation, requested share, không coi là gửi/in/lưu thành công. Viewer keyset paging 30 dòng, lọc theo category và chặn stale response. Account clear xóa nhật ký cuối transaction để dọn cả event phát sinh do trigger xóa hồ sơ, giữ tài khoản khác. Native/flow PDF/migration cần nghiệm thu; không log đăng nhập/nhật ký bảo mật hoặc đồng bộ/chống sửa đổi.
 

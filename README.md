@@ -17,6 +17,7 @@ Phạm vi ứng dụng Expo Go đã có các nhóm chức năng dưới đây. N
 - **Nhật ký hoạt động:** lọc theo loại, chia ngày, mới nhất trước, phân trang; chỉ ID nội bộ/thời điểm/loại thao tác, không tên/ghi chú/token/URI. Ghi từ bản cập nhật schema v6, không tạo lại lịch sử quá khứ. Yêu cầu chia sẻ PDF không có nghĩa đã gửi hoặc lưu.
 - **Demo/Hướng dẫn/Góp ý:** Demo dùng hồ sơ mẫu riêng, tối đa 10 lượt trong bộ nhớ, không camera/DB/PDF. Góp ý do người dùng xem lại rồi sao chép/chia sẻ thủ công, chưa có hộp thư nhận tự động.
 - **Dọn dữ liệu:** Đăng xuất giữ dữ liệu; Xóa dữ liệu và đăng xuất có xác nhận, xóa hồ sơ/thùng rác/phiên/ghi chú/logo/nhật ký theo tài khoản trong transaction. Tài khoản Supabase và PDF đã xuất ra Tệp vẫn còn.
+- **Phân tích dữ liệu mắt:** Cài đặt → Phân tích dữ liệu mắt, dùng mẫu có đáp án hoặc dán CSV góc đã hiệu chỉnh bên ngoài. Tính RMS, gain vận tốc, độ trễ/vận tốc đỉnh/gain biên độ saccade, vẽ trace và xuất PDF Việt/Anh. Chạy offline, dữ liệu chỉ trong bộ nhớ; chưa nối với camera hoặc lịch sử bệnh nhân. Có kiểm tra dữ liệu và loại đáp ứng không đủ điều kiện.
 
 | Bài | Cách hiển thị trong bản mô phỏng |
 | --- | --- |
@@ -24,16 +25,18 @@ Phạm vi ứng dụng Expo Go đã có các nhóm chức năng dưới đây. N
 | Horizontal Saccades | Chấm nhảy trái/giữa/phải, chờ khoảng 0,6–1,2 giây. |
 | Vertical Saccades | Chấm nhảy trên/giữa/dưới. |
 | Anti-Saccade | Chấm ở hai bên; hướng dẫn nhìn phía đối diện, không tự chấm đúng/sai. |
-| Gaze-Evoked Nystagmus | Giữa → trái → giữa → phải → giữa, giữ mỗi vị trí 6 giây. |
+| Gaze-Evoked Nystagmus | Giữa → trái → phải → trên → dưới, giữ mỗi vị trí 6 giây. |
 | Optokinetic Nystagmus (OKN) | Dải sáng–tối chạy ngang, đổi hướng sau 15 giây. |
 
-Các thời lượng/tốc độ trên phục vụ mô phỏng học tập, chưa phải protocol lâm sàng được kiểm chứng. Chưa theo dõi đồng tử, đo metrics, hiệu chỉnh góc nhìn, ghi 240fps, phát hiện rung giật nhãn cầu hoặc đưa kết luận chẩn đoán. NPC, Face ID/development build, phân quyền admin và sao lưu cloud chưa triển khai.
+Các thời lượng/tốc độ trên phục vụ mô phỏng học tập, chưa phải protocol lâm sàng được kiểm chứng. Chưa theo dõi đồng tử, đo metrics từ camera, hiệu chỉnh góc nhìn, ghi 240fps, phát hiện rung giật nhãn cầu hoặc đưa kết luận chẩn đoán. Bộ tính CSV là chức năng nghiên cứu độc lập; dữ liệu mẫu có nhãn và không thay thế số đo mắt. NPC, Face ID/development build, phân quyền admin và sao lưu cloud chưa triển khai.
 
 SQLite chưa mã hóa hoặc đồng bộ đám mây; logo và nhật ký cũng chỉ ở thiết bị. SecureStore bảo vệ token và tùy chọn nhỏ, không mã hóa toàn bộ database. Nhật ký cục bộ chưa chống chỉnh sửa. Chỉ dùng dữ liệu giả lập. Offline dùng được các phần cục bộ khi phiên tài khoản còn hợp lệ; đăng ký/đăng nhập/reset hoặc làm mới phiên cần dịch vụ mạng. Xem trước và Demo là hai luồng riêng.
 
 **Cấu hình tài khoản:** làm theo [hướng dẫn Supabase từng bước](docs/SUPABASE-SETUP.md), điền `.env` từ `.env.example`, bật Confirm email và sửa hai mẫu email để hiện `{{ .Token }}`.
 
 Xem [bảng 42 FR và phạm vi MVP](docs/MVP-SCOPE.md). Tài liệu đề thi là nguồn yêu cầu, không phải lệnh thay đổi stack sang Swift.
+
+Đợt bổ sung ngày 22/11: [đối chiếu đủ 42 yêu cầu, cách thử phân tích, thuật toán và phần còn thiếu](docs/REQUIREMENTS-REVIEW.md). Hai bộ CSV mẫu có đáp án trong [docs/samples](docs/samples).
 
 ## Chạy trên Windows và iPhone
 
@@ -116,6 +119,6 @@ Ghi kết quả mục 1–7 và lỗi cụ thể nếu có. Đợt này cần ki
 
 Giai đoạn 2 cần người dùng tạo Supabase project và điền biến môi trường theo `docs/SUPABASE-SETUP.md`. Luồng email dùng OTP để chạy trong Expo Go; callback deep link tự động chưa triển khai. Không đưa service role key vào ứng dụng. `.gitignore` loại `.env`, token và khóa riêng; `EXPO_PUBLIC_*` luôn là dữ liệu công khai trong bundle.
 
-Repository GitHub: [DuyBachh/VestibularScreening](https://github.com/DuyBachh/VestibularScreening), chế độ **riêng tư**. Nhánh mặc định và bàn giao là `codex/mvp-handoff-20261122`, tạo từ `master`; remote `origin` trỏ tới repository này. Không đưa `.env`, token, database/video/PDF bệnh nhân hoặc tệp đề thi vào repo. `.env.example` chỉ chứa placeholder.
+Repository GitHub: [DuyBachh/VestibularScreening](https://github.com/DuyBachh/VestibularScreening), chế độ **công khai** theo yêu cầu người dùng. Nhánh mặc định và bàn giao là `codex/mvp-handoff-20261122`, tạo từ `master`; remote `origin` trỏ tới repository này. Không đưa `.env`, token, database/video/PDF bệnh nhân hoặc tệp đề thi vào repo. `.env.example` chỉ chứa placeholder.
 
-Đã đưa mã và tài liệu lên GitHub ngày 22/11/2026. Người chấm cần được cấp quyền truy cập repository riêng tư. Kiểm thử tổng thể trên iPhone theo checklist ở trên vẫn cần hoàn tất trước buổi demo. Không force push hoặc thay lịch sử nhánh đang có.
+Đã đưa mã và tài liệu lên GitHub ngày 22/11/2026. Người chấm có thể xem repository công khai. Kiểm thử tổng thể trên iPhone theo checklist ở trên vẫn cần hoàn tất trước buổi demo. Không force push hoặc thay lịch sử nhánh đang có.

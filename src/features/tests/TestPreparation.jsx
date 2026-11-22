@@ -6,7 +6,7 @@ import { useFocusEffect } from 'expo-router';
 import { Button } from '../../components/Button';
 import { colors } from '../../constants/theme';
 import { stimulusGeometry } from './stimulusGeometry';
-import { gazeCueAt } from './gazeCue';
+import { gazeCueAt, GAZE_X, GAZE_Y } from './gazeCue';
 import { oknMotionPlan } from './oknMotion';
 import { OknStripes } from './OknStripes';
 
@@ -67,22 +67,27 @@ export function TestPreparation({ id, demo = false, compact = false, embedded = 
   }, [playing, motionAllowed, pursuit, position, stop, anti, gaze, okn]);
 
   const { range } = stimulusGeometry(id, width, 180, true);
+  const verticalRange = stimulusGeometry('vertical-saccades', width, 180, true).range;
+  const gazeTransform = [
+    { translateX: position.interpolate({ inputRange: [0, 1, 2, 3, 4], outputRange: GAZE_X.map((x) => x * range) }) },
+    { translateY: position.interpolate({ inputRange: [0, 1, 2, 3, 4], outputRange: GAZE_Y.map((y) => y * verticalRange) }) },
+  ];
   return <View style={[styles.card, embedded && styles.embedded]}>
     <View style={styles.heading}>
       <Text style={styles.eyebrow}>{compact ? t("CÁCH THỰC HIỆN") : t("1 · HIỂU CÁCH THỰC HIỆN")}</Text>
       <Text accessibilityRole="header" style={styles.title}>{okn ? t("Quan sát các dải chuyển động") : pursuit ? t("Nhìn theo chấm di chuyển") : gaze ? t("Giữ ánh nhìn tại các vị trí") : anti ? t("Nhìn về phía đối diện chấm") : vertical ? t("Nhìn nhanh theo chiều dọc") : t("Chuyển mắt tới chấm vừa xuất hiện")}</Text>
-      <Text style={styles.body}>{okn ? t("Quan sát các dải sáng–tối chạy ngang, giữ đầu cố định. Dải chạy sang phải trong 15 giây đầu rồi sang trái trong 15 giây còn lại.") : pursuit ? t("Chấm vàng đi liên tục sang hai bên. Dùng mắt theo dõi chấm trong suốt chuyển động, giữ đầu cố định.") : gaze ? t("Chấm vàng đứng yên rồi chuyển sang vị trí tiếp theo: giữa → trái → giữa → phải → giữa. Giữ ánh nhìn tại chấm, không xoay đầu theo chấm.") : anti ? t("Bắt đầu nhìn ở giữa. Khi chấm vàng xuất hiện bên trái, nhìn sang phải; khi chấm ở bên phải, nhìn sang trái. Giữ đầu cố định.") : vertical ? t("Chấm vàng đổi vị trí ngay giữa trên, giữa và dưới. Nhìn nhanh tới vị trí mới, giữ đầu cố định, không gật đầu theo chấm.") : t("Chấm vàng đổi vị trí ngay giữa trái, giữa và phải. Nhìn nhanh tới vị trí mới, giữ đầu cố định.")}</Text>
+      <Text style={styles.body}>{okn ? t("Quan sát các dải sáng–tối chạy ngang, giữ đầu cố định. Dải chạy sang phải trong 15 giây đầu rồi sang trái trong 15 giây còn lại.") : pursuit ? t("Chấm vàng đi liên tục sang hai bên. Dùng mắt theo dõi chấm trong suốt chuyển động, giữ đầu cố định.") : gaze ? t("Chấm vàng đứng yên rồi chuyển sang vị trí tiếp theo: giữa → trái → phải → trên → dưới. Giữ ánh nhìn tại chấm, không xoay đầu theo chấm.") : anti ? t("Bắt đầu nhìn ở giữa. Khi chấm vàng xuất hiện bên trái, nhìn sang phải; khi chấm ở bên phải, nhìn sang trái. Giữ đầu cố định.") : vertical ? t("Chấm vàng đổi vị trí ngay giữa trên, giữa và dưới. Nhìn nhanh tới vị trí mới, giữ đầu cố định, không gật đầu theo chấm.") : t("Chấm vàng đổi vị trí ngay giữa trái, giữa và phải. Nhìn nhanh tới vị trí mới, giữ đầu cố định.")}</Text>
       {okn ? <View style={styles.antiGuide}><Text style={styles.antiRule}>{t("Đổi hướng giữa lượt · 30 giây")}</Text><Text style={styles.body}>{t("Mẫu 8 giây đổi hướng sau 4 giây. Dừng nếu thấy khó chịu. Đây là mô phỏng học tập, chưa tự đánh giá phản xạ mắt.")}</Text></View> : null}
       {gaze ? <View style={styles.antiGuide}><Text style={styles.antiRule}>{t("Giữ tại mỗi vị trí · 6 giây")}</Text><Text style={styles.body}>{t("Lượt mô phỏng dài 30 giây. Mẫu 8 giây bên dưới chạy nhanh hơn để minh họa. Chưa phát hiện hoặc đánh giá rung giật nhãn cầu.")}</Text></View> : null}
       {anti ? <View style={styles.antiGuide}><Text style={styles.antiRule}>{t("Chấm trái → Nhìn phải")}</Text><Text style={styles.antiRule}>{t("Chấm phải → Nhìn trái")}</Text><Text style={styles.body}>{t("Chưa tự xác định ánh nhìn hoặc chấm đúng/sai.")}</Text></View> : null}
     </View>
     {okn ? <View style={styles.diagram}><View accessible accessibilityRole="image" accessibilityLabel={t("Minh họa dải sáng tối chuyển động ngang sang phải rồi sang trái")} style={styles.stripeStage} onLayout={(event) => setWidth(event.nativeEvent.layout.width)}><OknStripes position={position} width={width} /></View><Text style={[styles.caption, styles.lightCaption]}>{t("Dải chuyển động ngang · Đổi hướng giữa lượt")}</Text></View> : <View style={styles.diagram}>
-      <View accessible accessibilityRole="image" accessibilityLabel={pursuit ? t("Minh họa chấm đi liên tục theo chiều ngang qua trái, giữa và phải.") : gaze ? t("Minh họa chấm đứng yên tại giữa, trái, giữa, phải rồi giữa. Giữ ánh nhìn tại từng vị trí.") : anti ? t("Minh họa: chấm vàng ở một bên, vòng xanh chỉ hướng cần nhìn ở bên đối diện. Vòng xanh chỉ có trong hướng dẫn.") : vertical ? t("Minh họa chấm xuất hiện ở trên, giữa hoặc dưới, không trượt giữa các vị trí.") : t("Minh họa chấm xuất hiện ở từng vị trí trái, giữa hoặc phải, không trượt giữa các vị trí.")}
-        style={[styles.stage, vertical && styles.verticalStage]} onLayout={(event) => setWidth(event.nativeEvent.layout.width)}>
+      <View accessible accessibilityRole="image" accessibilityLabel={pursuit ? t("Minh họa chấm đi liên tục theo chiều ngang qua trái, giữa và phải.") : gaze ? t("Minh họa năm vị trí: giữa, trái, phải, trên, dưới. Giữ ánh nhìn tại từng vị trí.") : anti ? t("Minh họa: chấm vàng ở một bên, vòng xanh chỉ hướng cần nhìn ở bên đối diện. Vòng xanh chỉ có trong hướng dẫn.") : vertical ? t("Minh họa chấm xuất hiện ở trên, giữa hoặc dưới, không trượt giữa các vị trí.") : t("Minh họa chấm xuất hiện ở từng vị trí trái, giữa hoặc phải, không trượt giữa các vị trí.")}
+        style={[styles.stage, (vertical || gaze) && styles.verticalStage]} onLayout={(event) => setWidth(event.nativeEvent.layout.width)}>
         <View style={vertical ? styles.verticalPath : styles.path} />
-        {[-1, 0, 1].map((value) => <View key={value} style={[styles.marker, { transform: [vertical ? { translateY: value * range } : { translateX: value * range }] }]} />)}
+        {gaze ? GAZE_X.map((x, index) => <View key={index} style={[styles.marker, { transform: [{ translateX: x * range }, { translateY: GAZE_Y[index] * verticalRange }] }]} />) : [-1, 0, 1].map((value) => <View key={value} style={[styles.marker, { transform: [vertical ? { translateY: value * range } : { translateX: value * range }] }]} />)}
         {anti ? <Animated.View style={[styles.gazeHint, { transform: [{ translateX: position.interpolate({ inputRange: [-1, 1], outputRange: [range, -range] }) }] }]} /> : null}
-        <Animated.View style={[styles.dot, { transform: [vertical ? { translateY: position.interpolate({ inputRange: [-1, 1], outputRange: [-range, range] }) } : { translateX: position.interpolate({ inputRange: [-1, 1], outputRange: [-range, range] }) }] }]} />
+        <Animated.View style={[styles.dot, { transform: gaze ? gazeTransform : [vertical ? { translateY: position.interpolate({ inputRange: [-1, 1], outputRange: [-range, range] }) } : { translateX: position.interpolate({ inputRange: [-1, 1], outputRange: [-range, range] }) }] }]} />
         {vertical ? [t("Trên"), t("Giữa"), t("Dưới")].map((label, index) => <Text key={label} style={[styles.label, styles.verticalLabel, { transform: [{ translateY: (index - 1) * range }] }]}>{label}</Text>) : null}
       </View>
       {!vertical ? <View style={styles.labels}><Text style={styles.label}>{t("Trái")}</Text><Text style={styles.label}>{t("Giữa")}</Text><Text style={styles.label}>{t("Phải")}</Text></View> : null}

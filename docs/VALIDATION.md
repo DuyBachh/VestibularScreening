@@ -1,5 +1,13 @@
 # Kết quả kiểm tra VestibularScreening
 
+## Phân tích dữ liệu mắt và Gaze năm vị trí · 22/11/2026
+
+Đọc cả hai phần đặc tả trong đề thi cuối kì (1).docx, ghi bảng đối chiếu 42 FR ở REQUIREMENTS-REVIEW.md. Sửa Gaze-Evoked từ chỉ ngang thành giữa/trái/phải/trên/dưới; run 30 giây và preview 8 giây vẫn theo thời gian active, dùng cùng hai mảng tọa độ và vùng dọc có inset tránh caption. Không đổi camera controller, session schema hoặc battery flow.
+
+Thêm /analysis cho đăng nhập/xem trước, remount theo owner; truy cập từ Cài đặt/Hướng dẫn. CSV một trục đã hiệu chỉnh, giới hạn 6.000 mẫu/240.000 ký tự, 1–120 giây, timestamp tăng nghiêm ngặt, valid=0 giữ null. Gate kỹ thuật ≥20 Hz median/≥80% mẫu hợp lệ/max gap ≤250 ms, không đạo hàm qua khoảng >100 ms. Có gain vận tốc hồi quy qua gốc và loại chuyển động nhanh/lân cận, RMS, saccade latency/peak/displacement gain với baseline/onset/offset và lý do loại. Không có interpolation, normative/diagnosis, camera inference hoặc lưu DB/upload. CSV sửa làm hủy kết quả/nhãn mẫu và yêu cầu xác nhận đơn vị lại. Mẫu có đáp án riêng; thay dữ liệu riêng/xóa có xác nhận. Báo cáo HTML escape, SVG trace, snapshot ngôn ngữ/nguồn; share dùng URI Print nguyên bản, cleanup trong finally, chặn export cũ khi rời màn/đổi owner. Không coi share sheet đóng là đã gửi/lưu. Không phát sinh audit event giả của phiên bệnh nhân.
+
+npm test 130/130 PASS (13 ca mới về đáp án và ramp độc lập, CSV lỗi/units/time, missing/quality gates, artifacts, saccade blink/reverse/anticipation/incomplete, sampling/graph gaps, báo cáo/HTML/language). Lint và checkJs/typecheck PASS. iOS export PASS: 1.383 modules, 3,9 MB; lần chạy hạn chế quyền bị chặn ghi Hermes temporary bytecode, chạy lại với quyền ghi hệ thống thành công. Không có lỗi biên dịch ứng dụng được xác nhận từ lần bị chặn. Kiểm thử UI/PDF/camera/Gaze/đổi tài khoản trên thiết bị của đợt bổ sung chưa được báo PASS. Checklist 1–7 ở REQUIREMENTS-REVIEW.md.
+
 ## Đưa mã lên GitHub · 22/11/2026
 
 Theo yêu cầu trực tiếp của người dùng, đã tạo repository riêng tư https://github.com/DuyBachh/VestibularScreening trên tài khoản DuyBachh. Remote origin và nhánh mặc định codex/mvp-handoff-20261122 đã được cấu hình; commit ứng dụng d86345b đã push thành công, giữ nguyên lịch sử Git. README được cập nhật đường dẫn và trạng thái bàn giao. File môi trường được theo dõi chỉ có .env.example placeholder; .env thực vẫn bị ignore. Thao tác này không thay đổi kết quả kiểm thử hoặc thay thế checklist tổng thể trên iPhone.

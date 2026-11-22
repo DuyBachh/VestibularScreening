@@ -6,6 +6,7 @@ import { testPresentation } from './testPresentation';
 import { runClock } from './runPresentation';
 import { stimulusGeometry } from './stimulusGeometry';
 import { OknStripes } from './OknStripes';
+import { GAZE_X, GAZE_Y } from './gazeCue';
 
 /** @param {{name: string, id: string, patientName: string, demo: boolean}} props */
 export function RunHeader({ name, id, patientName, demo }) {
@@ -33,11 +34,16 @@ export function RunStage({ id, status, countdown, processing, position, width, o
   const { axis, range } = stimulusGeometry(id, width, height);
   const anti = id === 'anti-saccade';
   const gaze = id === 'gaze-evoked';
+  const verticalRange = stimulusGeometry('vertical-saccades', width, height).range;
+  const gazeTransform = [
+    { translateX: position.interpolate({ inputRange: [0, 1, 2, 3, 4], outputRange: GAZE_X.map((x) => x * range) }) },
+    { translateY: position.interpolate({ inputRange: [0, 1, 2, 3, 4], outputRange: GAZE_Y.map((y) => y * verticalRange) }) },
+  ];
   const okn = id === 'okn';
   const targetVisible = !processing && (status === 'running' || status === 'paused');
   const message = processing ? t("Đang dọn video") : status === 'countdown' ? String(countdown) : status === 'paused' ? t("Tạm dừng") : t("Chuẩn bị");
-  return <View style={[styles.stage, { height }]} onLayout={(event) => onWidth(event.nativeEvent.layout.width)} accessibilityLabel={okn ? t("Vùng dải sáng tối mô phỏng chuyển động ngang") : id === 'vertical-saccades' ? t("Vùng mục tiêu mô phỏng trên, giữa và dưới") : t("Vùng mục tiêu mô phỏng trái, giữa và phải")}>
-    {targetVisible && okn ? <OknStripes position={position} width={width} paused={status === 'paused'} /> : targetVisible ? <Animated.View style={[styles.dot, status === 'paused' && styles.pausedDot, { transform: [axis === 'translateY' ? { translateY: position.interpolate({ inputRange: [-1, 1], outputRange: [-range, range] }) } : { translateX: position.interpolate({ inputRange: [-1, 1], outputRange: [-range, range] }) }] }]} /> : null}
+  return <View style={[styles.stage, { height }]} onLayout={(event) => onWidth(event.nativeEvent.layout.width)} accessibilityLabel={okn ? t("Vùng dải sáng tối mô phỏng chuyển động ngang") : gaze ? t('Vùng mục tiêu mô phỏng giữa, trái, phải, trên và dưới') : id === 'vertical-saccades' ? t("Vùng mục tiêu mô phỏng trên, giữa và dưới") : t("Vùng mục tiêu mô phỏng trái, giữa và phải")}>
+    {targetVisible && okn ? <OknStripes position={position} width={width} paused={status === 'paused'} /> : targetVisible ? <Animated.View style={[styles.dot, status === 'paused' && styles.pausedDot, { transform: gaze ? gazeTransform : [axis === 'translateY' ? { translateY: position.interpolate({ inputRange: [-1, 1], outputRange: [-range, range] }) } : { translateX: position.interpolate({ inputRange: [-1, 1], outputRange: [-range, range] }) }] }]} /> : null}
     {status !== 'running' || processing ? <View style={styles.stageMessage}><Text style={[styles.stageTitle, status === 'countdown' && styles.countdown]}>{message}</Text><Text style={styles.stageHint}>{processing ? t("Chờ dừng ghi và xóa đoạn video tạm") : status === 'paused' ? okn ? t("Dải và thời gian đang dừng") : t("Điểm và thời gian đang dừng") : okn ? t("Chuẩn bị quan sát các dải chuyển động ngang.") : anti ? t("Bắt đầu ở giữa. Khi chấm sang bên, nhìn phía đối diện.") : gaze ? t("Chuẩn bị nhìn và giữ ánh nhìn tại chấm vàng.") : t("Chuẩn bị nhìn theo chấm vàng")}</Text></View> : <Text style={[styles.stageCaption, okn && styles.stripeCaption]}>{okn ? t("Giữ đầu cố định, quan sát các dải chuyển động.") : anti ? t("Giữ đầu cố định, nhìn phía đối diện chấm.") : gaze ? t("Giữ đầu cố định, giữ ánh nhìn tại chấm.") : t("Giữ đầu cố định, nhìn theo chấm vàng.")}</Text>}
   </View>;
 }

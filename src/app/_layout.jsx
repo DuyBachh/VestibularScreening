@@ -39,6 +39,7 @@ function AppNavigator() {
         <Stack.Screen name="feedback" options={{ title: t("Báo lỗi và góp ý"), headerShadowVisible: false, headerStyle: { backgroundColor: '#FAFCFD' } }} />
         <Stack.Screen name="guide" options={{ title: t("Hướng dẫn sử dụng") }} />
         <Stack.Screen name="demo" options={{ title: t("Demo không lưu dữ liệu") }} />
+        <Stack.Screen name="analysis" options={{ title: t('Phân tích dữ liệu mắt') }} />
         <Stack.Screen name="tests/[id]" options={{ title: t("Thông tin bài kiểm tra") }} />
         <Stack.Screen name="battery" options={{ title: t("Chuỗi 6 bài") }} />
       </Stack.Protected>
