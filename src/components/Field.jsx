@@ -1,15 +1,19 @@
+import { t } from '../features/language/language.js';
+import { useLanguage } from '../features/language/LanguageProvider';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { colors } from '../constants/theme';
 
-/** @param {import('react-native').TextInputProps & { label: string, password?: boolean, onActivity?: () => void }} props */
-export function Field({ label, password = false, onActivity, ...props }) {
+/** @param {import('react-native').TextInputProps & { label: string, password?: boolean, onActivity?: () => void, inputRef?: import('react').Ref<import('react').ComponentRef<typeof import('react-native').TextInput>>, inputContainerStyle?: import('react-native').StyleProp<import('react-native').ViewStyle> }} props */
+export function Field({ label, password = false, onActivity, inputRef, inputContainerStyle, ...props }) {
+  useLanguage();
   const [visible, setVisible] = useState(false);
   return (
     <View style={styles.field}>
       <Text style={styles.label}>{label}</Text>
-      <View style={styles.row}>
+      <View style={[styles.row, inputContainerStyle]}>
         <TextInput
+          ref={inputRef}
           accessibilityLabel={label}
           autoCapitalize="none"
           autoCorrect={false}
@@ -21,8 +25,8 @@ export function Field({ label, password = false, onActivity, ...props }) {
           style={[styles.input, props.style]}
         />
         {password ? (
-          <Pressable accessibilityRole="button" accessibilityLabel={visible ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'} onPress={() => setVisible(!visible)} style={styles.toggle}>
-            <Text style={styles.toggleText}>{visible ? 'Ẩn' : 'Hiện'}</Text>
+          <Pressable accessibilityRole="button" accessibilityLabel={visible ? t("Ẩn mật khẩu") : t("Hiện mật khẩu")} onPress={() => setVisible(!visible)} style={styles.toggle}>
+            <Text style={styles.toggleText}>{visible ? t("Ẩn") : t("Hiện")}</Text>
           </Pressable>
         ) : null}
       </View>

@@ -121,3 +121,36 @@ test('session expires at exactly 15 minutes and cannot be revived by a future ti
   assert.equal(isSessionIdle(now - IDLE_TIMEOUT, now), true);
   for (const value of [0, NaN, Infinity, now + 1]) assert.equal(isSessionIdle(value, now), true);
 });
+
+test('signup server failures identify where to diagnose without blaming the phone network', () => {
+  const message = authErrorMessage({ code: 'unexpected_failure', status: 500, message: 'private SMTP credential' });
+  assert.match(message, /Auth Logs/);
+  assert.match(message, /HTTP 500/);
+  assert.ok(!message.includes('private SMTP credential'));
+});
+
+test('retryable HTTP server responses are not mislabeled as phone connectivity failures', () => {
+  for (const status of [500, 502, 503]) {
+    const message = authErrorMessage({ name: 'AuthRetryableFetchError', status });
+    assert.match(message, /Auth Logs/);
+    assert.match(message, new RegExp(`HTTP ${status}`));
+    assert.ok(!message.includes('Internet trên iPhone'));
+  }
+});
+
+test('network failures, invalid keys, rate limits and rejected emails have distinct feedback', () => {
+  assert.match(authErrorMessage({ name: 'AuthRetryableFetchError', status: 0 }), /Internet trên iPhone/);
+  assert.match(authErrorMessage({ status: 401 }), /Publishable key/);
+  assert.match(authErrorMessage({ status: 429 }), /giới hạn/);
+  assert.match(authErrorMessage({ code: 'email_address_invalid', status: 422 }), /email thật/);
+  assert.match(authErrorMessage({ code: 'captcha_failed' }), /CAPTCHA/);
+});
+
+test('unknown errors never render arbitrary code, message, status or prototype properties', () => {
+  const message = authErrorMessage({ code: 'secret_token_from_server', status: 'private-status', message: 'secret-password' });
+  assert.ok(!message.includes('secret_token_from_server'));
+  assert.ok(!message.includes('private-status'));
+  assert.ok(!message.includes('secret-password'));
+  assert.equal(typeof authErrorMessage({ code: 'toString' }), 'string');
+  assert.ok(!authErrorMessage({ code: '__proto__' }).includes('[object'));
+});

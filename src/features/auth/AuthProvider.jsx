@@ -1,6 +1,9 @@
+import { t } from '../language/language.js';
+import { useLanguage } from '../language/LanguageProvider';
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { AppState } from 'react-native';
 import { isSessionIdle } from './sessionPolicy';
+import { accountData } from '../../services/accountData';
 import {
   activityStorageKey, isAuthConfigured, recoveryStorageKey,
   requireSupabase, sessionStorage, sessionStorageKey, supabase,
@@ -19,42 +22,55 @@ function useAuthState() {
   const lastActivity = useRef(0);
   const lastWrite = useRef(0);
   const closing = useRef(false);
+  const currentOwner = useRef('');
+  useEffect(() => { currentOwner.current = session?.user.id || ''; }, [session]);
 
-  const signOut = useCallback(async (message = '') => {
-    if (closing.current) return;
+  const signOut = useCallback(/** @param {string} message @param {{clearLocalOwner?: string}} options */ async (message = '', options = {}) => {
+    if (closing.current) return false;
     closing.current = true;
     setEndingSession(true);
+    if (options.clearLocalOwner !== undefined) {
+      try {
+        const owner = options.clearLocalOwner;
+        await accountData.clear(owner, () => !!owner && currentOwner.current === owner);
+      } catch {
+        closing.current = false;
+        setEndingSession(false);
+        return false;
+      }
+    }
     setLocked(true);
     setPreview(false);
     try {
       await sessionStorage.setItem(recoveryStorageKey, 'locked');
       const result = await supabase?.auth.signOut({ scope: 'local' });
       if (result?.error) {
-        setNotice('Đã khóa phiên trên thiết bị. Chưa xác nhận được việc thu hồi phiên trên máy chủ; hãy kết nối mạng rồi đăng nhập lại.');
+        setNotice(t("{0}Đã khóa phiên trên thiết bị. Chưa xác nhận được việc thu hồi phiên trên máy chủ; hãy kết nối mạng rồi đăng nhập lại.", [options.clearLocalOwner ? t("Đã xóa dữ liệu cục bộ. ") : '']));
       } else setNotice(message);
       await sessionStorage.removeItem(sessionStorageKey);
       await sessionStorage.removeItem(activityStorageKey);
     } catch {
-      setNotice('Phiên đã bị khóa. Không thể hoàn tất xóa phiên trên thiết bị; vui lòng thử đăng xuất lại khi có kết nối.');
+      setNotice(t("{0}Phiên đã bị khóa. Không thể hoàn tất xóa phiên trên thiết bị; vui lòng thử đăng xuất lại khi có kết nối.", [options.clearLocalOwner ? t("Đã xóa dữ liệu cục bộ. ") : '']));
     } finally {
       setSession(null);
       setRecovery(false);
       closing.current = false;
       setEndingSession(false);
     }
+    return true;
   }, []);
 
   const recordActivity = useCallback(() => {
     const now = Date.now();
     if (session && !locked && isSessionIdle(lastActivity.current, now)) {
-      void signOut('Phiên đã hết hạn sau 15 phút không hoạt động. Vui lòng đăng nhập lại.');
+      void signOut(t("Phiên đã hết hạn sau 15 phút không hoạt động. Vui lòng đăng nhập lại."));
       return;
     }
     lastActivity.current = now;
     if (session && !locked && now - lastWrite.current > 10_000) {
       lastWrite.current = now;
       void sessionStorage.setItem(activityStorageKey, String(now)).catch(() => {
-        setNotice('Không thể lưu thời điểm hoạt động. Vui lòng đăng xuất rồi đăng nhập lại.');
+        setNotice(t("Không thể lưu thời điểm hoạt động. Vui lòng đăng xuất rồi đăng nhập lại."));
       });
     }
   }, [session, locked, signOut]);
@@ -64,10 +80,11 @@ function useAuthState() {
     let active = true;
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, nextSession) => {
       if (!active) return;
+      currentOwner.current = nextSession?.user.id || '';
       setSession(nextSession);
       if (event === 'PASSWORD_RECOVERY') setRecovery(true);
       if (event === 'SIGNED_OUT') { setRecovery(false); setLocked(true); setPreview(false); }
-      // Keep this callback synchronous to avoid deadlocking the auth lock.
+      // Do not start token refreshes inside token-refresh event callbacks.
     });
     async function restoreSession() {
       try {
@@ -84,9 +101,9 @@ function useAuthState() {
         setRecovery(marker === 'recovery' && Boolean(result.data.session));
         setLocked((marker !== null && marker !== 'recovery') || expired);
         lastActivity.current = previousActivity || Date.now();
-        if (expired) await signOut('Phiên đã hết hạn sau 15 phút không hoạt động. Vui lòng đăng nhập lại.');
+        if (expired) await signOut(t("Phiên đã hết hạn sau 15 phút không hoạt động. Vui lòng đăng nhập lại."));
       } catch {
-        if (active) { setLocked(true); setNotice('Không thể khôi phục phiên đã lưu. Vui lòng đăng nhập lại.'); }
+        if (active) { setLocked(true); setNotice(t("Không thể khôi phục phiên đã lưu. Vui lòng đăng nhập lại.")); }
       } finally { if (active) setLoading(false); }
     }
     void restoreSession();
@@ -107,7 +124,7 @@ function useAuthState() {
     if (!session || loading || locked) return;
     function checkTimeout() {
       if (isSessionIdle(lastActivity.current, Date.now())) {
-        void signOut('Phiên đã hết hạn sau 15 phút không hoạt động. Vui lòng đăng nhập lại.');
+        void signOut(t("Phiên đã hết hạn sau 15 phút không hoạt động. Vui lòng đăng nhập lại."));
       }
     }
     const timer = setInterval(checkTimeout, 5_000);
@@ -168,7 +185,7 @@ function useAuthState() {
     if (!recovery || !session) throw new Error('No recovery session');
     const { error } = await requireSupabase().auth.updateUser({ password });
     if (error) throw error;
-    await signOut('Mật khẩu đã được cập nhật. Vui lòng đăng nhập bằng mật khẩu mới.');
+    await signOut(t("Mật khẩu đã được cập nhật. Vui lòng đăng nhập bằng mật khẩu mới."));
   }
 
   return {
@@ -182,6 +199,7 @@ function useAuthState() {
 
 /** @param {{ children: import('react').ReactNode }} props */
 export function AuthProvider({ children }) {
+  useLanguage();
   const value = useAuthState();
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

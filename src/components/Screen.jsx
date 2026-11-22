@@ -1,17 +1,20 @@
+import { t } from '../features/language/language.js';
+import { useLanguage } from '../features/language/LanguageProvider';
 import { ScrollView, StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../constants/theme';
 
 /** @param {{ title: string, subtitle?: string, children: import('react').ReactNode }} props */
 export function Screen({ title, subtitle = '', children }) {
+  useLanguage();
   return (
     <SafeAreaView style={styles.safe} edges={['left', 'right', 'bottom']}>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets contentInsetAdjustmentBehavior="automatic">
-        <Text style={styles.brand}>VESTIBULAR SCREENING · ĐỒ ÁN</Text>
+        <Text style={styles.brand}>{t("VESTIBULAR SCREENING · ĐỒ ÁN")}</Text>
         <Text accessibilityRole="header" style={styles.title}>{title}</Text>
         {subtitle ? <Text style={styles.body}>{subtitle}</Text> : null}
         {children}
-        <Text style={styles.footer}>Nguyên mẫu học tập, không phục vụ chẩn đoán y tế. Chỉ sử dụng thông tin bệnh nhân giả lập.</Text>
+        <Text style={styles.footer}>{t("Nguyên mẫu học tập, không phục vụ chẩn đoán y tế. Chỉ sử dụng thông tin bệnh nhân giả lập.")}</Text>
       </ScrollView>
     </SafeAreaView>
   );

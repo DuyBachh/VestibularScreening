@@ -1,8 +1,10 @@
+import { useLanguage } from '../features/language/LanguageProvider';
 import { StyleSheet, Text, View } from 'react-native';
 import { colors } from '../constants/theme';
 
 /** @param {{ children?: string, error?: boolean }} props */
 export function Notice({ children, error = false }) {
+  useLanguage();
   if (!children) return null;
   return <View accessibilityRole={error ? 'alert' : 'text'} accessibilityLiveRegion="polite" style={[styles.box, error && styles.errorBox]}><Text style={[styles.text, error && styles.errorText]}>{children}</Text></View>;
 }

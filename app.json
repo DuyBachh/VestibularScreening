@@ -24,7 +24,19 @@
     "plugins": [
       "expo-router",
       "expo-status-bar",
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-sqlite",
+      "@react-native-community/datetimepicker",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Cho phép VestibularScreening dùng camera để xem trước và quay video thử.",
+          "recordAudioAndroid": false,
+          "barcodeScannerEnabled": false
+        }
+      ],
+      "expo-sharing",
+      ["expo-image-picker", { "photosPermission": "Cho phép chọn ảnh logo cơ sở để đưa vào báo cáo PDF.", "microphonePermission": false }]
     ]
   }
 }

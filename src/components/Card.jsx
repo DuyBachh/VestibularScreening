@@ -1,8 +1,10 @@
+import { useLanguage } from '../features/language/LanguageProvider';
 import { StyleSheet, Text, View } from 'react-native';
 import { colors } from '../constants/theme';
 
 /** @param {{ title: string, children: import('react').ReactNode }} props */
 export function Card({ title, children }) {
+  useLanguage();
   return <View style={styles.card}><Text style={styles.title}>{title}</Text><Text style={styles.body}>{children}</Text></View>;
 }
 const styles = StyleSheet.create({

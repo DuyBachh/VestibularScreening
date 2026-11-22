@@ -1,4 +1,4 @@
-import { createClient, processLock } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 import { createChunkedStorage } from './chunkedStorage';
@@ -46,7 +46,6 @@ export const supabase = isAuthConfigured ? createClient(url, publicKey, {
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: false,
-    lock: processLock,
   },
 }) : null;
 
