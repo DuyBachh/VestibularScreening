@@ -1,5 +1,9 @@
 # Kết quả kiểm tra VestibularScreening
 
+## Đưa mã lên GitHub · 22/11/2026
+
+Theo yêu cầu trực tiếp của người dùng, đã tạo repository riêng tư https://github.com/DuyBachh/VestibularScreening trên tài khoản DuyBachh. Remote origin và nhánh mặc định codex/mvp-handoff-20261122 đã được cấu hình; commit ứng dụng d86345b đã push thành công, giữ nguyên lịch sử Git. README được cập nhật đường dẫn và trạng thái bàn giao. File môi trường được theo dõi chỉ có .env.example placeholder; .env thực vẫn bị ignore. Thao tác này không thay đổi kết quả kiểm thử hoặc thay thế checklist tổng thể trên iPhone.
+
 ## Tổng kiểm tra và chuẩn bị demo · 22/11/2026
 
 Người dùng xác nhận Nhật ký hoạt động PASS 1–7 trên iPhone. Sau các mốc chức năng đã được báo pass, chuyển sang kiểm thử xuyên suốt và chuẩn bị bàn giao đúng phạm vi đề bài ban đầu, không thêm tính năng lâm sàng/cloud hoặc đổi UI. Đã rút gọn README thành trạng thái hiện tại thay vì danh sách mốc cũ còn ghi chờ nghiệm thu; bổ sung bảng 6 stimulus, kịch bản demo 7–10 phút, checklist tổng thể và phần giải thích kiến trúc khi bảo vệ.

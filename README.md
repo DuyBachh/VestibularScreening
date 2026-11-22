@@ -116,6 +116,6 @@ Ghi kết quả mục 1–7 và lỗi cụ thể nếu có. Đợt này cần ki
 
 Giai đoạn 2 cần người dùng tạo Supabase project và điền biến môi trường theo `docs/SUPABASE-SETUP.md`. Luồng email dùng OTP để chạy trong Expo Go; callback deep link tự động chưa triển khai. Không đưa service role key vào ứng dụng. `.gitignore` loại `.env`, token và khóa riêng; `EXPO_PUBLIC_*` luôn là dữ liệu công khai trong bundle.
 
-Bản chuẩn bị bàn giao ở nhánh cục bộ `codex/mvp-handoff-20261122`, tạo từ `master`; hiện chưa có remote. Người dùng chưa tạo repository GitHub, nên mục đưa mã lên GitHub vẫn chưa hoàn thành. Không đưa `.env`, token, database/video/PDF bệnh nhân hoặc tệp đề thi vào repo. `.env.example` chỉ chứa placeholder.
+Repository GitHub: [DuyBachh/VestibularScreening](https://github.com/DuyBachh/VestibularScreening), chế độ **riêng tư**. Nhánh mặc định và bàn giao là `codex/mvp-handoff-20261122`, tạo từ `master`; remote `origin` trỏ tới repository này. Không đưa `.env`, token, database/video/PDF bệnh nhân hoặc tệp đề thi vào repo. `.env.example` chỉ chứa placeholder.
 
-Sau khi kiểm thử tổng thể đạt, tạo repository GitHub cho đồ án rồi gửi đường dẫn repository để cấu hình và push đúng nhánh. Việc tạo repo/đặt quyền truy cập và push sẽ được thực hiện ở bước GitHub riêng. Không force push hoặc thay lịch sử nhánh đang có.
+Đã đưa mã và tài liệu lên GitHub ngày 22/11/2026. Người chấm cần được cấp quyền truy cập repository riêng tư. Kiểm thử tổng thể trên iPhone theo checklist ở trên vẫn cần hoàn tất trước buổi demo. Không force push hoặc thay lịch sử nhánh đang có.
