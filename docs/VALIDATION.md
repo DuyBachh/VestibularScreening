@@ -1,5 +1,11 @@
 # Kết quả kiểm tra VestibularScreening
 
+## Nghiệm thu nhanh trên iPhone · 25/11/2026
+
+Người dùng xác nhận đạt cả ba bước trong kịch bản nghiệm thu nhanh ở BATTERY-REPORTS.md. Chuỗi đầy đủ còn 6/6 lượt sau khi mở lại ứng dụng. PDF của chuỗi kết thúc sớm có hai lượt đã lưu và bốn mục chưa thực hiện. Nhật ký ghi đủ ba thao tác PDF với cùng mã chuỗi.
+
+Bản cập nhật nhật ký PDF đạt 154/154 kiểm thử tự động, lint và kiểm tra kiểu dữ liệu. Xác nhận trên iPhone áp dụng cho ba bước trên.
+
 ## Tổng hợp chuỗi sáu bài và PDF chung · 25/11/2026
 
 Người dùng duyệt lưu chuỗi dưới mã riêng, xem lại trong Lịch sử và xuất PDF chung. Schema v8 thêm battery_runs/battery_items, tạo root + sáu vị trí trong một transaction, không tự ghép phiên cũ. Khi bắt đầu mỗi bài, tạo nháp và gắn session ID vào đúng vị trí cùng transaction, kiểm tra owner/hồ sơ/thứ tự. Trước chuyển bài/kết thúc, ghi trạng thái + thời lượng rồi mới đóng modal/handoff; lỗi giữ kết quả và cho thử lại. Phiên thường/khôi phục nháp cập nhật vị trí qua trigger cùng statement. Callback lặp không tạo thêm vị trí hoặc phiên.

@@ -183,6 +183,7 @@ export const english = {
   "Lượt kiểm tra": "Sessions",
   "Báo cáo": "Reports",
   "ID hồ sơ: {0}": "Record ID: {0}",
+  "ID chuỗi 6 bài: {0}": "Six-exercise sequence ID: {0}",
   "ID lượt kiểm tra: {0}": "Session ID: {0}",
   "Không lưu tên, nội dung ghi chú hoặc tệp báo cáo trong nhật ký. Yêu cầu chia sẻ không xác nhận đã gửi hoặc lưu PDF.": "Names, note contents and report files are not stored in activity history. Sharing requests do not confirm that a PDF was sent or saved.",
   "Nhật ký lưu trên thiết bị theo tài khoản, chưa có khả năng chống chỉnh sửa. Xóa dữ liệu và đăng xuất cũng xóa nhật ký của tài khoản.": "History is stored per account on this device and is not tamper-resistant. Delete data and sign out also removes this account's activity history.",

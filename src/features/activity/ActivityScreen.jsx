@@ -65,7 +65,7 @@ export function ActivityScreen() {
         return <View style={styles.event}>
           {day ? <Text accessibilityRole="header" style={styles.day}>{date.toLocaleDateString(getLocale(), { day: '2-digit', month: 'long', year: 'numeric' })}</Text> : null}
           <View style={styles.card}><View style={styles.eventTop}><Text style={styles.action}>{activityLabel(item.event)}</Text><Text style={styles.time}>{date.toLocaleTimeString(getLocale(), { hour: '2-digit', minute: '2-digit' })}</Text></View>
-            <Text selectable style={styles.id}>{item.category === 'patient' ? t('ID hồ sơ: {0}', [item.target_id]) : t('ID lượt kiểm tra: {0}', [item.target_id])}</Text>
+            <Text selectable style={styles.id}>{item.category === 'patient' ? t('ID hồ sơ: {0}', [item.target_id]) : item.category === 'report' && item.target_id.startsWith('battery/') ? t('ID chuỗi 6 bài: {0}', [item.target_id.slice('battery/'.length)]) : t('ID lượt kiểm tra: {0}', [item.target_id])}</Text>
           </View>
         </View>;
       }}

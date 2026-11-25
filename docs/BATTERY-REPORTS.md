@@ -20,6 +20,16 @@ Màn tổng hợp có Xem / in và Xuất / chia sẻ PDF. Một tệp gồm th�
 
 Ngôn ngữ được chụp tại lúc bắt đầu xuất; tên và ghi chú tự nhập không dịch. Đọc lại chuỗi và logo theo tài khoản trước xuất, escape HTML và chỉ chấp nhận ảnh logo data URL theo bộ kiểm tra hiện có. Chia sẻ giữ nguyên URI của Expo Print, chặn tác vụ đã rời màn/đổi tài khoản, dọn tệp trong finally. Đóng share sheet không xác nhận đã gửi/lưu; người dùng phải chọn đích. PDF đã lưu trong Tệp không tự thay đổi khi ghi chú sau này được sửa.
 
+## Kịch bản demo và nghiệm thu nhanh trên iPhone
+
+Dùng tài khoản thử và hồ sơ mẫu. Tắt camera để tập trung vào luồng lưu chuỗi và báo cáo.
+
+1. **Chuỗi đầy đủ.** Chạy sáu bài và lưu từng lượt với ghi chú “Bài 1” đến “Bài 6”. Đóng hẳn Expo Go rồi mở lại. Vào **Lịch sử → Lịch sử chuỗi 6 bài**, mở chuỗi vừa tạo và đối chiếu đủ 6/6 lượt, đúng thứ tự và ghi chú.
+2. **Chuỗi kết thúc sớm.** Tạo chuỗi mới, hoàn tất và lưu đúng hai bài, rồi kết thúc ở màn nghỉ trước bài thứ ba. Mở PDF và đối chiếu đủ sáu mục, với hai lượt đã lưu và bốn mục **Chưa thực hiện**.
+3. **Nhật ký PDF.** Ghi lại mã của chuỗi kết thúc sớm. Chọn **Xem / in báo cáo**, đóng màn in, rồi mở bảng chia sẻ PDF và bấm **Hủy**. Trong **Nhật ký hoạt động → Báo cáo**, đối chiếu ba dòng mới cùng mã chuỗi gồm **Yêu cầu xem/in PDF**, **Đã tạo tệp PDF** và **Yêu cầu chia sẻ PDF**.
+
+Khi demo, có thể chuẩn bị sẵn hai chuỗi đã nghiệm thu để trình bày phần mở lại lịch sử, rồi thực hiện bước 3 trực tiếp. Ghi kết quả từng bước cùng mẫu iPhone và phiên bản iOS đã dùng.
+
 ## Kiểm thử iPhone 1–7
 
 Chạy `npx expo start --clear`, mở lại Expo Go và dùng dữ liệu giả lập. Cần nghiệm thu riêng các tương tác mới, không suy rộng từ unit test hoặc bản đóng gói.
@@ -38,4 +48,5 @@ Schema v8 thêm `battery_runs` và `battery_items`, không gộp dữ liệu qu�
 
 Root liên kết hồ sơ qua khóa ngoại; Thùng rác ẩn dữ liệu và chặn truy cập, khôi phục hiển thị lại, hard delete cascade root/vị trí. Xóa local thực hiện xóa vị trí rồi root tường minh trong cùng transaction vì connection của exclusive transaction có thể không kế thừa foreign_keys. Không sao chép ghi chú vào bảng tổng hợp. Không có cơ chế xóa byte an toàn, mã hóa hoặc đồng bộ cloud.
 
-Nhật ký hiện tại ghi lưu/sửa các phiên riêng như trước; chưa bổ sung event riêng cho tạo/đóng chuỗi hoặc PDF tổng hợp. Không ghi giả sáu event export phiên khi chỉ tạo một PDF chuỗi. Không giữ video trong tổng hợp, không gộp chỉ số từ màn phân tích CSV, không bổ sung metrics hoặc kết luận sức khỏe. Không khôi phục tự động máy trạng thái chuỗi đang chạy.
+Trong Nhật ký hoạt động, lọc Báo cáo để xem yêu cầu xem/in, tạo tệp và yêu cầu chia sẻ theo ID chuỗi 6 bài. Việc gửi đến người nhận phụ thuộc vào ứng dụng được chọn trong bảng chia sẻ.
+Không giữ video trong tổng hợp, không gộp chỉ số từ màn phân tích CSV, không bổ sung metrics hoặc kết luận sức khỏe. Không khôi phục tự động máy trạng thái chuỗi đang chạy.

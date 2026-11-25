@@ -160,3 +160,18 @@ test('activity labels switch language without changing stored event codes', () =
     assert.equal(activityLabel('pdf_share_requested'), 'Yêu cầu chia sẻ PDF');
   } finally { setLanguage('vi'); }
 });
+
+test('battery PDF events identify one owned sequence and respect patient trash', async () => {
+  const { db, repo } = fixture();
+  try {
+    db.exec("CREATE UNIQUE INDEX owner_patient ON patients(owner_id,id)");
+    patient(db);
+    db.exec("INSERT INTO battery_runs(id,owner_id,patient_id,created_at,camera_requested) VALUES('b_test','a','p-1','2026-11-25',0)");
+    await repo.appendReport('a', 'pdf_created', 'b_test', 'battery');
+    await assert.rejects(repo.appendReport('b', 'pdf_created', 'b_test', 'battery'));
+    db.exec("UPDATE patients SET deleted_at=1 WHERE id='p-1'");
+    await assert.rejects(repo.appendReport('a', 'pdf_share_requested', 'b_test', 'battery'));
+    const rows = await repo.list('a', { category: 'report' });
+    assert.deepEqual(rows.map(row => [row.event, row.target_id]), [['pdf_created', 'battery/b_test']]);
+  } finally { db.close(); }
+});

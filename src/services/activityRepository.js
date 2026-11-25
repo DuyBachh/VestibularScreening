@@ -58,16 +58,18 @@ export function createActivityRepository(getDatabase, now = () => new Date()) {
       [owner, ...(category === 'all' ? [] : [category]), ...(beforeId === undefined ? [] : [beforeId]), size]);
     },
     /** Native report events describe requests or verified file creation, never delivery.
-     * @param {string} owner @param {string} event @param {string} sessionId */
-    async appendReport(owner, event, sessionId) {
+     * @param {string} owner @param {string} event @param {string} targetId @param {"session"|"battery"} kind */
+    async appendReport(owner, event, targetId, kind = 'session') {
       requireOwner(owner);
-      if (!REPORT_EVENTS.includes(event) || typeof sessionId !== 'string' || !/^[A-Za-z0-9_.:-]{1,128}$/.test(sessionId)) throw new Error(t('Thông tin nhật ký không hợp lệ.'));
+      if (!REPORT_EVENTS.includes(event) || typeof targetId !== 'string' || !/^[A-Za-z0-9_.:-]{1,128}$/.test(targetId)) throw new Error(t('Thông tin nhật ký không hợp lệ.'));
       const db = await getDatabase();
-      // Bind ownership and active-record checks to the insert, including unlinked sessions.
+      // Both report types may be unlinked. The slash namespace cannot collide with a session ID.
+      const table = kind === 'battery' ? 'battery_runs' : 'test_sessions';
+      const logId = kind === 'battery' ? 'battery/' + targetId : targetId;
       const result = await db.runAsync(`INSERT INTO activity_events(owner_id,event,category,target_id,occurred_at)
-        SELECT ?,?,'report',?,? WHERE EXISTS (SELECT 1 FROM test_sessions s LEFT JOIN patients p ON p.id=s.patient_id AND p.owner_id=s.owner_id
+        SELECT ?,?,'report',?,? WHERE EXISTS (SELECT 1 FROM ${table} s LEFT JOIN patients p ON p.id=s.patient_id AND p.owner_id=s.owner_id
         WHERE s.id=? AND s.owner_id=? AND (s.patient_id IS NULL OR (p.id IS NOT NULL AND p.deleted_at IS NULL)))`,
-      [owner, event, sessionId, now().toISOString(), sessionId, owner]);
+      [owner, event, logId, now().toISOString(), targetId, owner]);
       if (!result.changes) throw new Error(t('Phiên không còn khả dụng để ghi nhật ký.'));
     },
   };

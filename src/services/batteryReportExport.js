@@ -8,6 +8,8 @@ import { brandingDatabase } from './brandingDatabase';
 import { buildBatteryReport } from '../features/tests/batteryReport';
 import { shareGeneratedPdf } from '../features/tests/reportSharingFlow';
 
+import { activityDatabase } from './activityDatabase';
+
 let busy = false;
 /** @param {{ownerId: string,batteryId: string,mode: 'print' | 'share',isCurrent: () => boolean,reporter?: import('../features/auth/reportBranding').ReportBranding}} options */
 export async function exportBatteryReport({ ownerId, batteryId, mode, isCurrent, reporter = {} }) {
@@ -22,8 +24,11 @@ export async function exportBatteryReport({ ownerId, batteryId, mode, isCurrent,
     const logoData = await brandingDatabase.getLogo(ownerId);
     const html = buildBatteryReport(battery, { ...reporter, logoData }, language);
     if (!isCurrent()) return;
-    if (mode === 'print') await Print.printAsync({ html, margins: { top: 36, bottom: 36, left: 36, right: 36 } });
-    else {
+    if (mode === 'print') {
+      await activityDatabase.appendReport(ownerId, 'pdf_preview_requested', batteryId, 'battery');
+      if (!isCurrent()) return;
+      await Print.printAsync({ html, margins: { top: 36, bottom: 36, left: 36, right: 36 } });
+    } else {
       if (!await Sharing.isAvailableAsync()) throw new Error(t('Thiết bị chưa hỗ trợ chia sẻ file PDF. Hãy dùng Xem / in báo cáo.'));
       await shareGeneratedPdf({
         isCurrent,
@@ -31,6 +36,10 @@ export async function exportBatteryReport({ ownerId, batteryId, mode, isCurrent,
         share: async (uri) => {
           const file = new File(uri);
           if (!file.exists || file.size === 0) throw new Error(t('Không tạo được file PDF. Hãy thử lại.'));
+          if (!isCurrent()) return;
+          await activityDatabase.appendReport(ownerId, 'pdf_created', batteryId, 'battery');
+          if (!isCurrent()) return;
+          await activityDatabase.appendReport(ownerId, 'pdf_share_requested', batteryId, 'battery');
           if (isCurrent()) await Sharing.shareAsync(uri, { mimeType: 'application/pdf', UTI: 'com.adobe.pdf', dialogTitle: t('Lưu hoặc chia sẻ báo cáo PDF') });
         },
         remove: (uri) => { const file = new File(uri); if (file.exists) file.delete(); },
