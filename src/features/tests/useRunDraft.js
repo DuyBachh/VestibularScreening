@@ -23,7 +23,7 @@ export function useRunDraft(owner) {
     // recreate a row removed by account clearing or a successful session save.
     if (previous) void previous.writer.flush().catch(() => {}).finally(() => previous.writer.close());
   }, [owner]);
-  const prepare = useCallback(async (/** @type {{id: string, patientId: string | null, testId: string, startedAt: string, withCamera: boolean}} */ run) => {
+  const prepare = useCallback(async (/** @type {{id: string, patientId: string | null, testId: string, startedAt: string, withCamera: boolean, batteryRef?: {batteryId: string,ordinal: number}}} */ run) => {
     const account = currentOwner.current;
     if (!account) return;
     const isCurrent = () => mounted.current && currentOwner.current === account;
@@ -42,11 +42,12 @@ export function useRunDraft(owner) {
   }, []);
   const stop = useCallback(() => { context.current?.writer.close(); context.current = null; if (mounted.current) setState('idle'); }, []);
   const flush = useCallback(async () => { await context.current?.writer.flush(); }, []);
-  const discard = useCallback(async () => {
+  const discard = useCallback(async (/** @type {string} */ id) => {
     const previous = context.current;
-    if (!previous || previous.owner !== currentOwner.current) throw new Error(t('Tài khoản đã thay đổi.'));
-    await pendingRuns.remove(previous.owner, previous.id);
-    if (context.current === previous) stop();
+    const account = currentOwner.current;
+    if (!account || (previous && previous.owner !== account)) throw new Error(t('Tài khoản đã thay đổi.'));
+    await pendingRuns.remove(account, id);
+    if (previous?.id === id && context.current === previous) stop();
   }, [stop]);
   return { prepare, checkpoint, stop, flush, discard, state };
 }

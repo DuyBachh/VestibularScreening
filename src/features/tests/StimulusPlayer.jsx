@@ -29,7 +29,7 @@ import { useRunDraft } from './useRunDraft';
 
 const DURATION = 30000;
 
-/** @typedef {{ownerId: string, patient: import('../../services/patientDatabase').PatientRecord | null, camera: boolean, label: string, last: boolean, onFinish: (result: import('./batteryFlow').BatteryResult, end: boolean) => void}} BatteryRun */
+/** @typedef {{ownerId: string, patient: import('../../services/patientDatabase').PatientRecord | null, camera: boolean, batteryId?: string, ordinal: number, label: string, last: boolean, persistResult: (result: import('./batteryFlow').BatteryResult, end: boolean) => Promise<void>, onFinish: (result: import('./batteryFlow').BatteryResult, end: boolean) => void}} BatteryRun */
 /** @param {{ id: string, demo?: boolean, demoPatientName?: string, onDemoAdd?: (session: import('../demo/demoData').DemoSession) => void, battery?: BatteryRun }} props */
 export function StimulusPlayer({ id, demo = false, demoPatientName = '', onDemoAdd = () => {}, battery }) {
   useLanguage();
@@ -180,7 +180,7 @@ export function StimulusPlayer({ id, demo = false, demoPatientName = '', onDemoA
       } catch { setCameraError(t("Không chuẩn bị được camera hoặc chưa dọn được video tạm. Hãy mở Thử camera trước để kiểm tra.")); return; }
     }
     const run = { id: makeSessionId(), ownerId: ownerId || '', patientId: selectedPatient?.id || null, patientName: demo ? demoPatientName : selectedPatient?.name || '', startedAt: new Date().toISOString() };
-    if (ownerId) await prepareDraft({ ...run, testId: id, withCamera });
+    if (ownerId) await prepareDraft({ ...run, testId: id, withCamera, ...(battery?.batteryId ? { batteryRef: { batteryId: battery.batteryId, ordinal: battery.ordinal } } : {}) });
     setRunInfo(run);
     notesRef.current = '';
     setRunNotes('');
@@ -215,15 +215,15 @@ export function StimulusPlayer({ id, demo = false, demoPatientName = '', onDemoA
   function leave(action) {
     if (savingSession || cameraBusy || leaveLock.current) return;
     if (runInfo?.ownerId && !runSaved && ['completed', 'cancelled'].includes(status)) {
-      Alert.alert(t("Lượt kiểm tra chưa lưu"), t('Bỏ lượt sẽ xóa cả bản nháp và ghi chú chưa lưu. Bạn có thể ở lại để lưu vào lịch sử.'), [
+      Alert.alert(t("Lượt kiểm tra chưa lưu"), t('Bỏ lượt sẽ xóa cả bản nháp và ghi chú chưa lưu. Bạn có thể ở lại để lưu vào lịch sử.') + (battery?.batteryId ? '\n\n' + t('Tổng hợp chuỗi vẫn giữ trạng thái và thời lượng; ghi chú đã bỏ không được khôi phục.') : ''), [
         { text: t("Ở lại để lưu"), style: 'cancel' }, { text: t("Bỏ lượt này"), style: 'destructive', onPress: () => {
           if (leaveLock.current) return;
           leaveLock.current = true; setSavingSession(true); setDraftActionError('');
-          void discardDraft().then(action).catch(() => setDraftActionError(t('Chưa xóa được bản nháp. Hãy thử lại.'))).finally(() => { leaveLock.current = false; setSavingSession(false); });
+          void discardDraft(runInfo.id).then(action).catch(() => setDraftActionError(t('Chưa xóa được bản nháp. Hãy thử lại.'))).finally(() => { leaveLock.current = false; setSavingSession(false); });
         } }, { text: t('Giữ bản nháp'), onPress: () => {
           if (leaveLock.current) return;
           leaveLock.current = true; setSavingSession(true);
-          void flushDraft().then(() => { stopDraft(); action(); }).catch(() => {}).finally(() => { leaveLock.current = false; setSavingSession(false); });
+          void flushDraft().then(action).catch(() => {}).finally(() => { leaveLock.current = false; setSavingSession(false); });
         } },
       ]);
     } else action();
@@ -249,10 +249,15 @@ export function StimulusPlayer({ id, demo = false, demoPatientName = '', onDemoA
   }, [flushDraft]);
   function backToSetup() { setCameraReady(false); setStatus('ready'); }
   /** @param {boolean} end */
-  function finishInBattery(end) {
+  async function finishInBattery(end) {
     if (!battery || !runInfo || !ui.showResult || cameraBusy || savingSession || delivered.current) return;
-    setHandoff({ result: { testId: id, sessionId: runInfo.id, status, elapsedMs, saved: runSaved, cameraError: !!cameraError }, end });
-    backToSetup();
+    const result = { testId: id, sessionId: runInfo.id, status, elapsedMs, saved: runSaved, cameraError: !!cameraError };
+    setSavingSession(true); setDraftActionError('');
+    try {
+      await battery.persistResult(result, end);
+      setHandoff({ result, end }); backToSetup();
+    } catch { setDraftActionError(t('Chưa lưu được tiến độ chuỗi. Giữ màn này và thử tiếp tục hoặc kết thúc lại.')); }
+    finally { setSavingSession(false); }
   }
   function confirmBatteryEnd() {
     if (cameraBusy || savingSession) return;

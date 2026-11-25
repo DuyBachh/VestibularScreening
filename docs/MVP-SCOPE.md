@@ -26,7 +26,7 @@ Các FR bên dưới là phân loại tính khả thi, không phải chứng nh�
 | 10 | Chỉnh sửa hồ sơ | Thật | Đã triển khai kiểm tra đầu vào và cập nhật SQLite, lọc theo chủ sở hữu. |
 | 11 | Xóa mềm, khôi phục 30 ngày | Thật | Đã có deleted_at, thùng rác, khôi phục hồ sơ kèm phiên trong 30 ngày, xóa vĩnh viễn có xác nhận. Dọn hết hạn theo tài khoản khi mở/foreground hoặc truy cập quản lý hồ sơ; không có lịch chạy nền đúng ngày. Cần nghiệm thu trên iPhone. |
 | 12 | Anonymous mode | Thật | Test không gắn hồ sơ; tách khỏi dữ liệu bệnh nhân. |
-| 13 | Chọn bài hoặc full battery | Thật | Có 6 bài mô phỏng chạy riêng hoặc theo chuỗi: thiết lập hồ sơ/camera một lần, màn nghỉ giữa bài, lưu từng lượt riêng và tổng hợp trong bộ nhớ. Người dùng đã báo chuỗi PASS 1–7; không có protocol/metrics lâm sàng hoặc khôi phục chuỗi sau đóng app. |
+| 13 | Chọn bài hoặc full battery | Thật | Có 6 bài chạy riêng/chuỗi, hồ sơ/camera chung, nghỉ chủ động và lưu từng lượt riêng. Từ 25/11 có mã chuỗi, lịch sử và PDF tổng hợp bền; không tự tiếp tục máy trạng thái chạy sau đóng app. Bản chạy chuỗi cũ đã báo PASS; phần lưu tổng hợp/PDF mới cần nghiệm thu riêng. |
 | 14 | Hướng dẫn trước bài | Thật | Hai bài hỗ trợ có hướng dẫn riêng, sơ đồ trái/giữa/phải, xem chuyển động mẫu 8 giây tự dừng, ba bước chuẩn bị và lưu ý tạm dừng. Tôn trọng Giảm chuyển động; mẫu không quay/lưu phiên. Vẫn giữ đếm ngược 3 giây khi chạy. Người dùng xác nhận checklist 1–7 PASS trên iPhone. |
 | 15 | Hiệu chỉnh đồng tử 5–9 điểm | Nghiên cứu/native | Có thể mô phỏng điểm hiệu chỉnh, chưa có ánh xạ đồng tử thật. |
 | 16 | Stimulus theo protocol chuẩn | Mô phỏng | Chuyển động UI thật, thông số phục vụ học tập; chưa có protocol được duyệt để gọi là chuẩn lâm sàng. |
@@ -39,7 +39,7 @@ Các FR bên dưới là phân loại tính khả thi, không phải chứng nh�
 | 23 | Tính metrics mắt | Nghiên cứu/native | Đã bổ sung bộ phân tích CSV góc có hiệu chỉnh bên ngoài: RMS/gain vận tốc, latency/peak/displacement gain saccade. Chưa lấy trace từ camera, chưa SPV/NPC/OKN asymmetry hoặc xác minh lâm sàng. |
 | 24 | So sánh normative data | Nghiên cứu/native | Chưa có bộ dữ liệu tham chiếu/ngưỡng được kiểm chứng; không phân loại bình thường hoặc bất thường. |
 | 25 | Báo cáo sau bài | Mô phỏng | Phiên lưu tên bài, bệnh nhân, thời gian, trạng thái, ghi chú; chưa trace camera. Màn phân tích riêng có đồ thị và chỉ số từ CSV, không tự gắn vào phiên bệnh nhân hay diễn giải bệnh lý. |
-| 26 | PDF | Thật | expo-print và expo-sharing; PDF phiên giữ metadata/logo/ghi chú, PDF phân tích riêng có đồ thị/chỉ số tính từ CSV và nhãn nguồn. Chưa PDF đo mắt tự động sau bài camera. |
+| 26 | PDF | Thật | PDF phiên giữ metadata/logo/ghi chú, PDF tổng hợp chuỗi có đủ sáu vị trí và nguồn thông tin từng lượt; PDF phân tích riêng có đồ thị/chỉ số CSV. Chưa PDF đo mắt tự động sau bài camera. |
 | 27 | So sánh nhiều lần | Mô phỏng | Đã so sánh metadata của 2 phiên cùng bệnh nhân/cùng bài: thời điểm, trạng thái, thời gian thực hiện, camera, ghi chú. Không so sánh phiên không gắn hồ sơ hoặc kết luận tiến triển lâm sàng. Chưa nghiệm thu trên iPhone. |
 | 28 | Ghi chú phiên | Thật | Lưu ghi chú với phiên trước khi hoàn tất. |
 | 29 | Chia sẻ báo cáo | Thật | Share sheet iOS; đích email/AirDrop/Files tùy thiết bị. |
@@ -58,6 +58,8 @@ Các FR bên dưới là phân loại tính khả thi, không phải chứng nh�
 | 42 | Core offline | Thật | Stimulus, SQLite và PDF local; đăng ký/reset cần mạng, tracking lâm sàng chưa có. |
 
 ## Các mốc triển khai
+
+Tổng hợp chuỗi và PDF chung (25/11/2026): schema v8 thêm battery_runs/battery_items, tạo sáu vị trí theo owner/hồ sơ, gắn session ID cùng transaction tạo nháp trước khi bắt đầu. Ghi kết quả trước handoff modal; lỗi giữ màn và cho thử lại. Phiên lưu/khôi phục cập nhật vị trí bằng trigger, tổng hợp đọc phiên/nháp theo owner/test/patient để phân biệt nguồn và không phục hồi ghi chú đã bỏ. Lịch sử chuỗi/tổng hợp có filter hồ sơ và PDF Việt/Anh/logo/người lập, đủ sáu bài kể cả kết thúc sớm/gián đoạn. Soft delete ẩn, restore hiện, hard delete cascade; clear local xóa vị trí/root tường minh và đếm chuỗi. Không tự ghép phiên cũ, tiếp tục chuỗi hoặc bổ sung chỉ số mắt; chưa audit event riêng của chuỗi/PDF chung. Checklist mới ở BATTERY-REPORTS.md.
 
 Lưu tạm và khôi phục (22/11/2026): người dùng duyệt chức năng giữ metadata/ghi chú chưa lưu khi đóng app, không tự tiếp tục bài/camera. Schema v7 thêm pending_runs theo owner/patient, checkpoint khoảng mỗi giây và ghi chú khi nhập, writer tuần tự/gộp bản cập nhật với revision. Màn /drafts đọc lại dữ liệu, sửa ghi chú, lưu completed/cancelled vào lịch sử và dọn nháp nguyên tử; active hiển thị Gián đoạn và chỉ chuẩn bị bài mới sau xác nhận xóa. Trang chủ báo có nháp, Cài đặt/Hướng dẫn có lối vào. Giữ bản nháp khi rời kết quả; bỏ lượt/xóa nháp có xác nhận. Xóa local dọn nháp, logout thường giữ, trash ẩn/khôi phục và hard delete cascade theo hồ sơ. Không khôi phục chuỗi/Demo/video hoặc bảo đảm ký tự chưa ghi xong. Checklist thiết bị ở DRAFT-RECOVERY.md.
 

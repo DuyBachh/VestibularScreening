@@ -9,6 +9,7 @@ import { createSessionRepository } from '../src/services/sessionRepository.js';
 import { createAccountDataRepository } from '../src/services/accountDataRepository.js';
 import { SESSION_SCHEMA } from '../src/features/tests/sessionData.js';
 import { PENDING_RUN_SCHEMA } from '../src/services/pendingRunRepository.js';
+import { BATTERY_SCHEMA } from '../src/services/batteryRepository.js';
 import { BRANDING_SCHEMA } from '../src/features/auth/reportBranding.js';
 import { activityLabel } from '../src/features/activity/activityLabels.js';
 import { setLanguage } from '../src/features/language/language.js';
@@ -17,7 +18,7 @@ function fixture(path = ':memory:', migrate = true) {
   const db = new DatabaseSync(path);
   db.exec(`PRAGMA foreign_keys=ON;
     CREATE TABLE IF NOT EXISTS patients(id TEXT PRIMARY KEY,owner_id TEXT NOT NULL,code TEXT NOT NULL,name TEXT NOT NULL,birth_date TEXT DEFAULT '',gender TEXT DEFAULT '',notes TEXT DEFAULT '',deleted_at INTEGER,updated_at TEXT,UNIQUE(owner_id,code));
-    ${SESSION_SCHEMA} ${BRANDING_SCHEMA} ${PENDING_RUN_SCHEMA}`);
+    ${SESSION_SCHEMA} ${BRANDING_SCHEMA} ${PENDING_RUN_SCHEMA} ${BATTERY_SCHEMA}`);
   if (migrate) db.exec(ACTIVITY_SCHEMA);
   const adapter = {
     runAsync: async (sql, args) => db.prepare(sql).run(...args),

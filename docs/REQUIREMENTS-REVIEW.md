@@ -28,7 +28,7 @@
 | 10 | Có luồng | Sửa hồ sơ, validation và lọc owner. |
 | 11 | Một phần | Thùng rác/khôi phục 30 ngày, dọn hết hạn khi app hoạt động; chưa có tác vụ nền chạy đúng thời điểm ngày 30. |
 | 12 | Có luồng | Không gắn hồ sơ và Demo riêng trong bộ nhớ. |
-| 13 | Có luồng | Sáu bài chạy riêng/chuỗi, nghỉ chủ động và lưu từng phiên. NPC vẫn tương lai theo phần tiếng Anh. |
+| 13 | Có luồng | Sáu bài riêng/chuỗi, nghỉ chủ động và lưu từng phiên; từ 25/11 có tổng hợp chuỗi bền theo mã riêng, mở lại lịch sử và PDF chung. Không tự tiếp tục bài/chuỗi sau đóng app. NPC vẫn tương lai theo phần tiếng Anh. |
 | 14 | Có luồng | Hướng dẫn và mẫu trực quan cho sáu bài. |
 | 15 | Chưa có | Chưa hiệu chỉnh đồng tử 5–9 điểm. CSV chỉ nhận góc được hiệu chỉnh bên ngoài. |
 | 16 | Một phần | Stimulus có chuyển động tương ứng; Gaze-Evoked đã đủ năm hướng. Chưa có tham số protocol lâm sàng được duyệt. |
@@ -41,7 +41,7 @@
 | 23 | Một phần mới bổ sung | Có phép tính từ CSV đã có góc; chưa lấy từ camera, chưa SPV/OKN asymmetry/NPC/corrective-saccade count. |
 | 24 | Chưa có | Chưa có normative dataset/ngưỡng do clinical lead cung cấp. Không tự phân loại bình thường/bất thường. |
 | 25 | Một phần mới bổ sung | Phiên thật có metadata; màn phân tích riêng có đồ thị/số học. Chưa có báo cáo đo mắt tự động sau bài chạy. |
-| 26 | Một phần mới bổ sung | PDF phiên có logo/hồ sơ/ghi chú. PDF phân tích có đồ thị/chỉ số nhưng tách riêng, không giả gắn với phiên camera. |
+| 26 | Một phần mới bổ sung | PDF phiên và PDF tổng hợp sáu bài có logo/hồ sơ/ghi chú, phân biệt nguồn lưu/nháp/đã bỏ. PDF phân tích có đồ thị/chỉ số nhưng tách riêng, không giả gắn với phiên camera. |
 | 27 | Một phần | Đối chiếu metadata hai phiên cùng hồ sơ/cùng bài; chưa biểu đồ tiến triển chỉ số mắt. |
 | 28 | Có luồng | Ghi chú trước lưu và sửa sau lưu. |
 | 29 | Có luồng | Share sheet PDF, đích do người dùng chọn. |

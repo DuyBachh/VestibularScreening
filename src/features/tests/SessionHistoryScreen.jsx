@@ -61,6 +61,7 @@ export function SessionHistoryScreen({ patientId = '' }) {
   if (!owner) return <Screen title={t("Lịch sử kiểm tra")} subtitle={t("Đăng nhập để xem các lượt đã lưu của tài khoản.")}><Text style={styles.body}>{t("Chế độ xem trước không đọc dữ liệu lịch sử.")}</Text></Screen>;
   return <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.safe}>
     <View style={styles.header}><Text style={styles.title}>{patientId ? t("Lịch sử bệnh nhân") : t("Lịch sử kiểm tra")}</Text><Text style={styles.body}>{t("Mới nhất trước · Chỉ lưu trên thiết bị")}</Text>
+      <Button secondary disabled={loading} onPress={() => router.push({ pathname: '/battery-history', params: patientId ? { patientId } : {} })}>{t('Lịch sử chuỗi 6 bài')}</Button>
       <Button secondary disabled={loading} onPress={() => { setCompareMode(!compareMode); setSelection({ owner, scope: patientId, items: [] }); }}>{compareMode ? t("Hủy chọn so sánh") : t("So sánh hai lượt")}</Button>
       {compareMode ? <Text style={styles.body}>{t("Chọn 2 lượt của cùng bệnh nhân và cùng bài. Không chọn lượt không gắn hồ sơ.")}</Text> : null}
     </View>

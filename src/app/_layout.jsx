@@ -53,6 +53,8 @@ function AppNavigator() {
         <Stack.Screen name="compare" options={{ title: t("So sánh lượt kiểm tra") }} />
         <Stack.Screen name="activity" options={{ title: t('Nhật ký hoạt động') }} />
         <Stack.Screen name="drafts" options={{ title: t('Bản nháp chưa lưu') }} />
+        <Stack.Screen name="battery-history" options={{ title: t('Lịch sử chuỗi 6 bài') }} />
+        <Stack.Screen name="battery-results/[id]" options={{ title: t('Tổng hợp chuỗi đã lưu') }} />
       </Stack.Protected>
       </Stack>
     </View>

@@ -1,5 +1,5 @@
 import { t } from '../features/language/language.js';
-/** @typedef {{patients: number, trashed: number, sessions: number, logos: number, drafts: number}} AccountDataSummary */
+/** @typedef {{patients: number, trashed: number, sessions: number, logos: number, drafts: number, batteries: number}} AccountDataSummary */
 /** @param {string} owner */
 function requireOwner(owner) {
   if (typeof owner !== 'string' || !owner.trim()) throw new Error(t("Cần đăng nhập để quản lý dữ liệu."));
@@ -17,7 +17,8 @@ export function createAccountDataRepository(getDatabase) {
         (SELECT COUNT(*) FROM patients WHERE owner_id = ? AND deleted_at IS NOT NULL) AS trashed,
         (SELECT COUNT(*) FROM test_sessions WHERE owner_id = ?) AS sessions,
         (SELECT COUNT(*) FROM report_branding WHERE owner_id = ?) AS logos,
-        (SELECT COUNT(*) FROM pending_runs WHERE owner_id = ?) AS drafts`, [owner, owner, owner, owner, owner]);
+        (SELECT COUNT(*) FROM pending_runs WHERE owner_id = ?) AS drafts,
+        (SELECT COUNT(*) FROM battery_runs WHERE owner_id = ?) AS batteries`, [owner, owner, owner, owner, owner, owner]);
       if (!row) throw new Error(t("Không đọc được số lượng dữ liệu."));
       return row;
     },
@@ -32,6 +33,10 @@ export function createAccountDataRepository(getDatabase) {
         guard();
         // Exclusive transactions use a new connection without inherited foreign_keys.
         // Delete every owned session explicitly, including unlinked and trashed-patient runs.
+        await tx.runAsync('DELETE FROM battery_items WHERE owner_id = ?', [owner]);
+        guard();
+        await tx.runAsync('DELETE FROM battery_runs WHERE owner_id = ?', [owner]);
+        guard();
         await tx.runAsync('DELETE FROM pending_runs WHERE owner_id = ?', [owner]);
         guard();
         await tx.runAsync('DELETE FROM test_sessions WHERE owner_id = ?', [owner]);

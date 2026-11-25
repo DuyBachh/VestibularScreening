@@ -2,9 +2,9 @@
 
 Đồ án React Native bằng JavaScript, Expo SDK 58 và Expo Router. Nguyên mẫu học tập, không phải thiết bị chẩn đoán. Chỉ dùng dữ liệu bệnh nhân giả lập.
 
-## Trạng thái hiện tại · 22/11/2026
+## Trạng thái hiện tại · 25/11/2026
 
-Phạm vi ứng dụng Expo Go đã có các nhóm chức năng dưới đây. Người dùng đã nghiệm thu các mốc chức năng qua checklist trên iPhone, gần nhất là Nhật ký hoạt động. Kiểm thử tổng thể cho bản bàn giao vẫn cần chạy lại trên thiết bị; không coi kiểm thử mã hoặc bundle là bằng chứng camera/UI native đã đạt.
+Phạm vi ứng dụng Expo Go đã có các nhóm chức năng dưới đây. Người dùng đã nghiệm thu nhiều mốc chức năng qua checklist trên iPhone, gồm Gaze năm vị trí và phân tích dữ liệu mắt. Lưu nháp/khôi phục và tổng hợp chuỗi/PDF mới cần nghiệm thu riêng. Kiểm thử tổng thể cho bản bàn giao vẫn cần chạy lại trên thiết bị; không coi kiểm thử mã hoặc bundle là bằng chứng camera/UI native đã đạt.
 
 - **Tài khoản:** Supabase Auth email/OTP, đăng nhập/đăng xuất, khôi phục mật khẩu, hồ sơ chuyên môn và logo. Phiên lưu SecureStore, timeout 15 phút không hoạt động.
 - **Hồ sơ mẫu:** SQLite, tạo/sửa/tìm không dấu theo tên hoặc mã, lịch chọn ngày sinh, giới tính chỉ Nam/Nữ. Tách dữ liệu theo tài khoản, thùng rác/khôi phục 30 ngày và xác nhận xóa vĩnh viễn.
@@ -12,7 +12,7 @@ Phạm vi ứng dụng Expo Go đã có các nhóm chức năng dưới đây. N
 - **Camera tùy chọn:** camera trước, không thu âm, ghi theo đoạn và xóa video tạm khi dừng. Có preview/quay thử riêng, xử lý từ chối quyền và tự pause khi chuyển ứng dụng. Không tự lưu Camera Roll.
 - **Kết quả:** lưu metadata/ghi chú, lịch sử tổng/theo hồ sơ, sửa ghi chú, so sánh hai phiên cùng hồ sơ và cùng bài. Không so sánh hoặc kết luận tình trạng sức khỏe.
 - **PDF:** xem/in, xuất/chia sẻ bằng share sheet iPhone; tên/chuyên khoa/cơ sở/logo lấy từ thông tin đã lưu. Giữ URI gốc của Expo Print để chia sẻ trong Expo Go.
-- **Chuỗi 6 bài:** chọn hồ sơ/camera một lần, tiến độ n/6, màn nghỉ chủ động, lưu từng phiên riêng và tổng hợp cuối. Tổng hợp chỉ trong bộ nhớ màn, chưa có khôi phục chuỗi sau đóng app hoặc PDF gộp.
+- **Chuỗi 6 bài:** chọn hồ sơ/camera một lần, tiến độ n/6, màn nghỉ chủ động và lưu từng phiên riêng. Chuỗi mới khi đăng nhập có mã riêng, sáu vị trí liên kết đúng phiên/nháp; mở lại từ Lịch sử → Lịch sử chuỗi 6 bài và xuất PDF chung Việt/Anh, logo/thông tin người lập. Phân biệt đã lưu/bản nháp/đã bỏ/chưa thực hiện/gián đoạn; không giữ ghi chú đã bỏ. Không tự tiếp tục bài/camera khi mở lại. [Cách dùng và checklist 1–7](docs/BATTERY-REPORTS.md).
 - **Việt/Anh:** chọn trong Cài đặt, nút VI/EN ở đăng nhập và các màn tài khoản. Đã bỏ nút khỏi Trang chủ theo yêu cầu. Ghi nhớ lựa chọn trên thiết bị, dịch UI/hướng dẫn/thông báo/PDF; giữ tên, ghi chú, ID và giá trị giới tính lưu Nam/Nữ.
 - **Nhật ký hoạt động:** lọc theo loại, chia ngày, mới nhất trước, phân trang; chỉ ID nội bộ/thời điểm/loại thao tác, không tên/ghi chú/token/URI. Ghi từ bản cập nhật schema v6, không tạo lại lịch sử quá khứ. Yêu cầu chia sẻ PDF không có nghĩa đã gửi hoặc lưu.
 - **Demo/Hướng dẫn/Góp ý:** Demo dùng hồ sơ mẫu riêng, tối đa 10 lượt trong bộ nhớ, không camera/DB/PDF. Góp ý do người dùng xem lại rồi sao chép/chia sẻ thủ công, chưa có hộp thư nhận tự động.

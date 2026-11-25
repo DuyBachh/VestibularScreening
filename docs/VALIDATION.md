@@ -1,5 +1,15 @@
 # Kết quả kiểm tra VestibularScreening
 
+## Tổng hợp chuỗi sáu bài và PDF chung · 25/11/2026
+
+Người dùng duyệt lưu chuỗi dưới mã riêng, xem lại trong Lịch sử và xuất PDF chung. Schema v8 thêm battery_runs/battery_items, tạo root + sáu vị trí trong một transaction, không tự ghép phiên cũ. Khi bắt đầu mỗi bài, tạo nháp và gắn session ID vào đúng vị trí cùng transaction, kiểm tra owner/hồ sơ/thứ tự. Trước chuyển bài/kết thúc, ghi trạng thái + thời lượng rồi mới đóng modal/handoff; lỗi giữ kết quả và cho thử lại. Phiên thường/khôi phục nháp cập nhật vị trí qua trigger cùng statement. Callback lặp không tạo thêm vị trí hoặc phiên.
+
+Lịch sử chuỗi phân trang và lọc theo hồ sơ; chi tiết đọc root/vị trí/phiên/nháp cùng snapshot, các JOIN ràng buộc owner/test/patient. Nguồn được phân biệt saved/draft/discarded/missing/none. Active draft vẫn là gián đoạn dù elapsed=30.000 ms; planned không có session ID/thời lượng/kết quả giả. Tổng hợp không sao chép ghi chú; ghi chú đã bỏ không trở lại trong PDF. Khôi phục nháp chuyển cùng vị trí sang saved; sửa notes phiên hiển thị lại khi mở tổng hợp. Chuỗi không tự tiếp tục và không bật camera khi mở lại.
+
+PDF chung Việt/Anh có đủ sáu mục, metadata/ghi chú/nguồn trạng thái, hồ sơ/logo/người lập, escape HTML và CSP không cho tài nguyên từ xa. Locale snapshot rõ ràng, giữ dữ liệu tự nhập, URI Print nguyên bản, cleanup finally và generation guard dùng chung ReportActions. Không log giả sáu export phiên cho một PDF chung; event riêng của chuỗi/PDF chung chưa triển khai. Soft delete ẩn/chặn đọc và ghi, restore hiện lại, hard delete cascade. Clear local đếm chuỗi và xóa vị trí/root tường minh cùng transaction (kiểm thử cả foreign_keys OFF), giữ tài khoản khác.
+
+Kiểm tra mã: npm test 153/153 PASS (10 ca mới về sáu bài/notes, kết thúc sớm/bỏ ghi chú, nháp→phiên, active không hoàn tất, owner/patient/order, duplicate callbacks, trash/cascade, rollback, lưu bền/migration, PDF/escape/locale). Lint và typecheck PASS. iOS export PASS: 1.397 modules, bundle 4 MB. Chưa nghiệm thu UI/modal/camera, migration thiết bị hoặc bố cục PDF native của phần mới; checklist 1–7 ở BATTERY-REPORTS.md. Phần lưu nháp trước đó chưa có báo cáo PASS thiết bị riêng trong hội thoại; không suy rộng thành đã nghiệm thu.
+
 ## Lưu tạm và khôi phục bản nháp · 22/11/2026
 
 Người dùng báo PASS phần Gaze năm vị trí và phân tích dữ liệu mắt của mốc trước, sau đó duyệt lưu tạm/khôi phục. Đã thêm schema v7 pending_runs, tạo trước khi bắt đầu cho tài khoản đăng nhập, checkpoint khoảng mỗi giây/trạng thái thay đổi và ghi chú được xếp ghi từ sự kiện nhập. Demo/xem trước không mở luồng ghi nháp. Writer tuần tự/gộp pending, revision tăng, retry; chỉ báo saved sau khi SQLite ghi xong. Update không upsert, không lùi tiến độ/trạng thái; tài khoản thay đổi trong begin/recover làm rollback. Không lưu video/URI/token/tên bệnh nhân trong bảng nháp.

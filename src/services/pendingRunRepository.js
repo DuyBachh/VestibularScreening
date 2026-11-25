@@ -2,6 +2,7 @@ import { t } from '../features/language/language.js';
 import { isSupportedTest } from '../features/tests/catalog.js';
 import { validateSession } from '../features/tests/sessionData.js';
 import { createSessionRepository } from './sessionRepository.js';
+import { attachBatteryExercise } from './batteryRepository.js';
 
 export const PENDING_RUN_SCHEMA = `
 CREATE TABLE IF NOT EXISTS pending_runs (
@@ -46,7 +47,7 @@ function validateCheckpoint(snapshot) {
 export function createPendingRunRepository(getDatabase) {
   return {
     /** Create once before starting; later writes only UPDATE so deletion cannot be undone by a delayed writer.
-     * @param {string} owner @param {{id: string, patientId: string | null, testId: string, startedAt: string, withCamera: boolean}} run @param {() => boolean} isCurrent */
+     * @param {string} owner @param {{id: string, patientId: string | null, testId: string, startedAt: string, withCamera: boolean, batteryRef?: {batteryId: string,ordinal: number}}} run @param {() => boolean} isCurrent */
     async begin(owner, run, isCurrent) {
       requireOwner(owner);
       if (!run.id || !isSupportedTest(run.testId) || !Number.isFinite(Date.parse(run.startedAt))) throw new Error(t('Bản nháp không hợp lệ.'));
@@ -59,6 +60,7 @@ export function createPendingRunRepository(getDatabase) {
           AND NOT EXISTS(SELECT 1 FROM test_sessions WHERE id=?) ON CONFLICT(id) DO NOTHING`,
         [run.id, owner, run.patientId, run.testId, run.startedAt, run.startedAt, run.withCamera ? 'pending' : 'not_used', run.patientId, owner, run.patientId, run.id]);
         if (!inserted.changes) throw new Error(t('Không tạo được bản nháp. Hồ sơ có thể đã thay đổi.'));
+        if (run.batteryRef) await attachBatteryExercise(tx, owner, run.batteryRef, run);
         guard();
       });
     },

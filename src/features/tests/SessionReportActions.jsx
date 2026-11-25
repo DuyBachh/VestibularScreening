@@ -8,9 +8,10 @@ import { useAuth } from '../auth/AuthProvider';
 import { exportSessionReport } from '../../services/sessionReportExport';
 import { colors } from '../../constants/theme';
 import { isPrintCancellation } from './sessionReport';
+import { exportBatteryReport } from '../../services/batteryReportExport';
 
-/** @param {{ ownerId: string, sessionId: string, notesDirty: boolean, saving: boolean }} props */
-export function SessionReportActions({ ownerId, sessionId, notesDirty, saving }) {
+/** @param {{ ownerId: string, sessionId?: string, batteryId?: string, notesDirty: boolean, saving: boolean }} props */
+export function SessionReportActions({ ownerId, sessionId = '', batteryId = '', notesDirty, saving }) {
   useLanguage();
   const auth = useAuth();
   const [working, setWorking] = useState(false);
@@ -35,7 +36,9 @@ export function SessionReportActions({ ownerId, sessionId, notesDirty, saving })
     auth.recordActivity();
     try {
       const metadata = auth.session?.user.user_metadata;
-      await exportSessionReport({ ownerId, sessionId, mode, isCurrent, reporter: { fullName: metadata?.full_name, specialty: metadata?.specialty, workplace: metadata?.workplace } });
+      const reporter = { fullName: metadata?.full_name, specialty: metadata?.specialty, workplace: metadata?.workplace };
+      if (batteryId) await exportBatteryReport({ ownerId, batteryId, mode, isCurrent, reporter });
+      else await exportSessionReport({ ownerId, sessionId, mode, isCurrent, reporter });
       if (isCurrent()) setMessage(mode === 'share' ? t("Đã đóng bảng chia sẻ. Nếu đã chọn Lưu vào Tệp, bạn có thể mở file từ ứng dụng Tệp.") : t("Đã đóng cửa sổ xem / in báo cáo."));
     } catch (failure) {
       if (isCurrent()) {
@@ -50,7 +53,7 @@ export function SessionReportActions({ ownerId, sessionId, notesDirty, saving })
   if (Platform.OS === 'web') return <Text style={styles.body}>{t("Xuất PDF và chia sẻ được hỗ trợ trên điện thoại.")}</Text>;
   return <View style={styles.panel}>
     <Text style={styles.title}>{t("Báo cáo PDF")}</Text>
-    <Text style={styles.body}>{t("Thông tin phiên và ghi chú đã lưu, có nhãn mô phỏng học tập.")}</Text>
+    <Text style={styles.body}>{batteryId ? t('Một PDF chung cho sáu bài, phân biệt lượt đã lưu, bản nháp và lượt chưa thực hiện.') : t("Thông tin phiên và ghi chú đã lưu, có nhãn mô phỏng học tập.")}</Text>
     {notesDirty ? <Text style={styles.body}>{t("Hãy lưu ghi chú trước khi xuất báo cáo.")}</Text> : null}
     <Button secondary loading={working} disabled={saving || notesDirty} onPress={() => { void run('print'); }}>{t("Xem / in báo cáo")}</Button>
     <Button disabled={working || saving || notesDirty} onPress={() => { void run('share'); }}>{t("Xuất / chia sẻ PDF")}</Button>
